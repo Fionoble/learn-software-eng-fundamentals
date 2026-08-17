@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Working Guide to Software Engineering</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📐</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340..700;1,9..144,340..700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root{
+  --paper:#EFEDE5;
+  --paper-deep:#E4E1D6;
+  --card:#FAF8F2;
+  --ink:#1C2027;
+  --ink-soft:#5B6472;
+  --line:#D2CEC1;
+  --blue:#2C5D82;
+  --blue-soft:#DCE7EF;
+  --rust:#B0512D;
+  --rust-soft:#F2DDD2;
+  --brass:#8C6D2E;
+  --shadow:0 1px 2px rgba(28,32,39,.06), 0 6px 18px -8px rgba(28,32,39,.2);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#15181D;
+    --paper-deep:#101317;
+    --card:#1C2027;
+    --ink:#E6E5DF;
+    --ink-soft:#98A2AF;
+    --line:#333A45;
+    --blue:#84B2D0;
+    --blue-soft:#1E2A34;
+    --rust:#DE8560;
+    --rust-soft:#33201A;
+    --brass:#C6A559;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 22px -10px rgba(0,0,0,.6);
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Public Sans',-apple-system,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.55;
+  background-image:
+    linear-gradient(rgba(44,93,130,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44,93,130,.045) 1px, transparent 1px),
+    radial-gradient(circle at 88% 8%, rgba(140,109,46,.07), transparent 42%);
+  background-size:28px 28px, 28px 28px, auto;
+  min-height:100vh;
+}
+::selection{background:var(--rust);color:var(--card)}
+
+.layout{display:grid;grid-template-columns:300px 1fr;max-width:1200px;margin:0 auto;min-height:100vh;background:linear-gradient(var(--paper),var(--paper))}
+
+/* ---------- sidebar ---------- */
+aside{
+  border-right:1px solid var(--line);
+  padding:2.2rem 1.6rem 2rem;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  display:flex;flex-direction:column;gap:1.4rem;
+}
+.masthead h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;font-size:1.7rem;line-height:1.12;
+  letter-spacing:-.01em;
+}
+.masthead h1 em{font-style:italic;color:var(--blue)}
+.masthead .sub{
+  margin-top:.55rem;font-size:.78rem;color:var(--ink-soft);
+  text-transform:uppercase;letter-spacing:.14em;font-weight:600;
+}
+.rule{border:none;border-top:1px solid var(--line);position:relative}
+.rule::after{
+  content:'◈';position:absolute;left:50%;top:-.72em;transform:translateX(-50%);
+  background:var(--paper);padding:0 .6em;color:var(--brass);font-size:.85rem;
+}
+.searchwrap{position:relative}
+.searchwrap input{
+  width:100%;padding:.6rem .85rem .6rem 2.1rem;
+  font:inherit;font-size:.85rem;
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:.55rem;outline:none;
+  transition:border-color .15s;
+}
+.searchwrap input:focus{border-color:var(--blue)}
+.searchwrap::before{
+  content:'⌕';position:absolute;left:.7rem;top:50%;transform:translateY(-54%);
+  color:var(--ink-soft);font-size:1.05rem;
+}
+.searchwrap kbd{
+  position:absolute;right:.6rem;top:50%;transform:translateY(-50%);
+  font-family:inherit;font-size:.62rem;color:var(--ink-soft);
+  border:1px solid var(--line);border-radius:.3rem;padding:.08rem .38rem;
+  background:var(--paper);
+}
+nav{display:flex;flex-direction:column;gap:.15rem}
+nav button{
+  all:unset;cursor:pointer;display:flex;align-items:baseline;gap:.7rem;
+  padding:.52rem .65rem;border-radius:.5rem;font-size:.86rem;
+  transition:background .12s;
+}
+nav button:hover{background:var(--paper-deep)}
+nav button.active{background:var(--blue-soft)}
+nav button .numeral{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  color:var(--brass);width:1.9em;flex:none;font-size:.9rem;
+}
+nav button.active .numeral{color:var(--blue)}
+nav button .t{flex:1;font-weight:500}
+nav button .n{font-size:.68rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+nav button .n.done{color:var(--blue);font-weight:700}
+
+.progressbox{margin-top:auto;font-size:.75rem;color:var(--ink-soft)}
+.progressbox .label{display:flex;justify-content:space-between;margin-bottom:.4rem;letter-spacing:.05em}
+.trail{height:6px;background:var(--paper-deep);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.trail i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--brass));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.reset{all:unset;cursor:pointer;font-size:.68rem;color:var(--ink-soft);margin-top:.55rem;text-decoration:underline;text-underline-offset:2px}
+.reset:hover{color:var(--rust)}
+
+/* ---------- main ---------- */
+main{padding:2.6rem 3rem 5rem;min-width:0}
+.chapter-head{margin-bottom:1.9rem;animation:rise .45s cubic-bezier(.22,1,.36,1) both}
+.chapter-head .kicker{
+  font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--rust);font-weight:700;margin-bottom:.5rem;
+}
+.chapter-head h2{
+  font-family:'Fraunces',Georgia,serif;font-weight:550;font-size:2.5rem;
+  line-height:1.05;letter-spacing:-.015em;margin-bottom:.7rem;
+}
+.chapter-head p{max-width:56ch;color:var(--ink-soft);font-size:.95rem}
+
+.cards{display:flex;flex-direction:column;gap:.65rem}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:.75rem;
+  box-shadow:var(--shadow);overflow:hidden;
+  animation:rise .5s cubic-bezier(.22,1,.36,1) both;
+}
+.card:nth-child(1){animation-delay:.02s}.card:nth-child(2){animation-delay:.05s}
+.card:nth-child(3){animation-delay:.08s}.card:nth-child(4){animation-delay:.11s}
+.card:nth-child(5){animation-delay:.14s}.card:nth-child(6){animation-delay:.17s}
+.card:nth-child(7){animation-delay:.2s}.card:nth-child(8){animation-delay:.23s}
+.card:nth-child(9){animation-delay:.26s}.card:nth-child(10){animation-delay:.29s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card-head{
+  all:unset;cursor:pointer;display:flex;align-items:baseline;gap:1rem;
+  padding:1rem 1.25rem;width:100%;box-sizing:border-box;
+}
+.card-head:hover{background:color-mix(in srgb, var(--card) 70%, var(--paper-deep))}
+.spec-id{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.8rem;
+  color:var(--brass);flex:none;width:3.2em;font-variant-numeric:tabular-nums;
+}
+.card.learned .spec-id{color:var(--blue)}
+.term{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:1.12rem;letter-spacing:-.005em}
+.card.learned .term::after{
+  content:'✓';margin-left:.5em;color:var(--blue);font-family:'Public Sans',sans-serif;
+  font-size:.85em;font-weight:700;
+}
+.plain{color:var(--ink-soft);font-size:.86rem;margin-top:.15rem}
+.headmain{flex:1;min-width:0}
+.chev{flex:none;color:var(--ink-soft);font-size:.8rem;transition:transform .25s;align-self:center}
+.card.open .chev{transform:rotate(90deg)}
+
+.card-body{display:none;padding:0 1.25rem 1.25rem 1.25rem;border-top:1px dashed var(--line)}
+.card.open .card-body{display:block;animation:rise .3s cubic-bezier(.22,1,.36,1) both}
+.card-body .gist{padding:1rem 0 0;font-size:.93rem;max-width:64ch}
+.why{
+  margin-top:.9rem;padding:.7rem .9rem;border-left:3px solid var(--rust);
+  background:var(--rust-soft);border-radius:0 .5rem .5rem 0;
+  font-size:.84rem;max-width:64ch;
+}
+.why b{color:var(--rust);font-weight:700;letter-spacing:.04em;font-size:.72rem;text-transform:uppercase;display:block;margin-bottom:.15rem}
+details.deeper{margin-top:.9rem;max-width:64ch}
+details.deeper summary{
+  cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.45rem;
+  font-size:.8rem;font-weight:700;color:var(--blue);letter-spacing:.06em;text-transform:uppercase;
+}
+details.deeper summary::-webkit-details-marker{display:none}
+details.deeper summary::before{content:'▸';transition:transform .2s;font-size:.75rem}
+details.deeper[open] summary::before{transform:rotate(90deg)}
+details.deeper .deep-body{padding:.7rem 0 0;font-size:.9rem;color:var(--ink)}
+details.deeper .deep-body p+p{margin-top:.6rem}
+.card-foot{display:flex;align-items:center;gap:.7rem;margin-top:1.1rem;flex-wrap:wrap}
+.learn-btn{
+  all:unset;cursor:pointer;font-size:.78rem;font-weight:700;
+  padding:.42rem .95rem;border-radius:99px;border:1.5px solid var(--blue);
+  color:var(--blue);letter-spacing:.03em;transition:all .15s;
+}
+.learn-btn:hover{background:var(--blue-soft)}
+.card.learned .learn-btn{background:var(--blue);color:var(--card)}
+.rel{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto}
+.rel button{
+  all:unset;cursor:pointer;font-size:.7rem;padding:.28rem .65rem;border-radius:99px;
+  background:var(--paper-deep);color:var(--ink-soft);border:1px solid var(--line);
+}
+.rel button:hover{border-color:var(--brass);color:var(--ink)}
+
+/* ---------- workbench (exercises) ---------- */
+.fw-head{margin:2.8rem 0 1.1rem}
+.fw-kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);font-weight:700;margin-bottom:.35rem}
+.fw-head h3{font-family:'Fraunces',Georgia,serif;font-weight:550;font-size:1.7rem;letter-spacing:-.01em}
+.fw-head p{color:var(--ink-soft);font-size:.88rem;max-width:56ch;margin-top:.3rem}
+.card.ex{border-left:3px solid var(--rust)}
+.card.ex .spec-id{color:var(--rust);width:4em}
+.card.ex.learned .spec-id{color:var(--blue)}
+.badges{display:flex;gap:.4rem;flex:none;align-self:center}
+.badge{font-size:.64rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.22rem .6rem;border-radius:99px;border:1px solid var(--line);color:var(--ink-soft);white-space:nowrap}
+ol.steps{margin:1rem 0 0 1.2rem;font-size:.91rem;max-width:64ch;display:flex;flex-direction:column;gap:.55rem}
+.trail i.ember{background:linear-gradient(90deg,var(--rust),var(--brass))}
+@media (max-width:840px){.badges{display:none}}
+
+code{
+  font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:.86em;
+  background:var(--paper-deep);padding:.1em .35em;border-radius:.3em;
+}
+
+.empty{color:var(--ink-soft);font-style:italic;padding:2rem 0;font-family:'Fraunces',Georgia,serif;font-size:1.05rem}
+
+.pager{display:flex;justify-content:space-between;margin-top:2.4rem;gap:1rem}
+.pager button{
+  all:unset;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--blue);
+  padding:.6rem .9rem;border-radius:.55rem;border:1px solid var(--line);background:var(--card);
+  transition:border-color .15s;max-width:46%;
+}
+.pager button:hover{border-color:var(--blue)}
+.pager button span{display:block;font-size:.66rem;color:var(--ink-soft);font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.pager .next{text-align:right;margin-left:auto}
+
+/* mobile */
+@media (max-width:840px){
+  .layout{grid-template-columns:1fr}
+  aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);padding-bottom:1.4rem}
+  .progressbox{margin-top:.4rem}
+  main{padding:1.8rem 1.2rem 4rem}
+  .chapter-head h2{font-size:1.9rem}
+  .rel{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="masthead">
+      <h1>A Working Guide to <em>Software Engineering</em></h1>
+      <div class="sub">Foundations · Architecture · Judgment</div>
+    </div>
+    <hr class="rule">
+    <div class="searchwrap">
+      <input id="search" type="search" placeholder="Search the guide…" autocomplete="off">
+      <kbd>/</kbd>
+    </div>
+    <nav id="nav"></nav>
+    <div class="progressbox">
+      <div class="label"><span>Concepts understood</span><strong id="ptext">0 / 0</strong></div>
+      <div class="trail"><i id="pbar" style="width:0%"></i></div>
+      <div class="label" style="margin-top:.6rem"><span>Workbench done</span><strong id="xtext">0 / 0</strong></div>
+      <div class="trail"><i id="xbar" class="ember" style="width:0%"></i></div>
+      <button class="reset" id="reset">Reset progress</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<script>
+const GUIDE = [
+{
+  numeral:'I', slug:'machine', title:'The Machine Underneath',
+  desc:'What is actually happening when your code runs. Ten ideas that sit below every language, framework, and framework’s replacement — and that stay true when all of those change.',
+  topics:[
+  {id:'machine', term:'The machine model',
+   plain:'A CPU in a loop: fetch an instruction, do it, repeat. Everything else is decoration.',
+   gist:'Underneath every abstraction is a processor executing simple instructions in sequence — load a number from memory, add, compare, jump elsewhere. Your elegant class hierarchy, your async pipeline, your React component: all of it becomes a linear stream of these. Nothing your program does is magic; it is only far away from the metal.',
+   why:'When you can no longer read the code you shipped, you fall back on reasoning about what it must be doing. A mental model of the machine is what lets you predict behavior you did not write.',
+   deeper:'<p>Three facts about the CPU do most of the explanatory work. It executes <b>one instruction stream per core</b> (so a single-threaded program cannot use eight cores). It <b>only operates on registers</b> — a handful of tiny slots — so data must be shuttled in from memory and back. And it <b>guesses</b>: modern CPUs pipeline and speculate ahead through branches, which is why unpredictable <code>if</code> statements in a hot loop cost more than predictable ones.</p><p>You do not need assembly to be a strong engineer. You do need to stop treating the runtime as an oracle: every abstraction is a program someone else wrote, running on this same loop.</p>',
+   rel:['memory','abstraction','io']},
+  {id:'memory', term:'The stack and the heap',
+   plain:'Two ways to hold data: a fast disciplined stack, a flexible expensive heap.',
+   gist:'The stack is scratch space for function calls: each call pushes a frame holding its local variables, and returning pops it — automatic, ordered, and extremely fast. The heap is a large pool for anything whose size or lifetime is not known in advance: allocation costs more, and someone must decide when the memory is released.',
+   why:'Almost every memory bug, leak, and “why is this object still alive?” puzzle is a question about which of these two regions a value lives in and who holds a reference to it.',
+   deeper:'<p>This split explains the questions languages disagree about. C makes you free heap memory manually (leaks and use-after-free). Rust ties lifetime to ownership and checks it at compile time. Java, Go, Python and JavaScript run a <b>garbage collector</b> that periodically finds unreachable heap objects — which is why those languages have GC pauses and why you can still “leak” by keeping a reference in a long-lived cache or listener list.</p><p>The stack is also finite (typically ~1–8 MB). Infinite recursion exhausts it, which is a <code>StackOverflowError</code> — a different failure from running out of heap, which is <code>OutOfMemory</code>.</p>',
+   rel:['callstack','machine','state']},
+  {id:'bytes', term:'Everything is bytes',
+   plain:'Numbers, text, images, your code — all the same thing, interpreted differently.',
+   gist:'Memory holds only bytes. What a byte <em>means</em> comes from the type you view it through: the same 32 bits are an integer, a float, or four characters depending on the interpretation. Every representation has edges — integers overflow, floats cannot represent 0.1 exactly, text needs an encoding to become bytes and back.',
+   why:'This is where silent, expensive bugs live: money stored as floats, a name that breaks on a non-ASCII character, an ID that overflows at 2,147,483,647. They pass tests and fail in production.',
+   deeper:'<p>Three edges worth internalizing. <b>Integer overflow</b>: fixed-width integers wrap or trap; use 64-bit for anything counting real-world things. <b>Floating point</b>: binary fractions cannot represent most decimal fractions, so <code>0.1 + 0.2 !== 0.3</code> — never use floats for currency; use integer cents or a decimal type. <b>Text</b>: a string is bytes plus an encoding (use UTF-8 everywhere), and “length” is ambiguous — bytes, code points, and user-perceived characters all differ for emoji and accented text.</p><p>Serialization is this same idea at the boundary: JSON, Protobuf, and CSV are just agreements about how to turn structured values into bytes and back without losing meaning.</p>',
+   rel:['types','modeling','io']},
+  {id:'compilation', term:'Compilation, interpretation, and runtimes',
+   plain:'The gap between the text you write and the instructions that run.',
+   gist:'Source code must become machine instructions somehow. A compiler translates the whole program ahead of time (C, Rust, Go); an interpreter walks the source or a bytecode form as it runs (Python, Ruby); most modern systems are hybrids that compile hot paths just-in-time (JVM, V8, .NET). The result is a spectrum from “fast start, slow run” to “slow start, fast run”.',
+   why:'Build steps, bundlers, transpilers, and “works on my machine” problems are all this pipeline leaking. Knowing the stages tells you where to look when the artifact does not match the source.',
+   deeper:'<p>Stages, roughly: <b>parse</b> source into a syntax tree, <b>analyze</b> it (resolve names, check types), <b>optimize</b>, and <b>emit</b> code. Errors are named after the stage that caught them — syntax error, type error, link error, runtime error — and the earlier the stage, the cheaper the bug.</p><p>The runtime is the part that stays with you: garbage collector, scheduler, standard library, dynamic linker. “The language is slow” is usually a claim about a runtime, not about syntax. And every JIT means your first request is slower than your thousandth — an effect that quietly ruins naive benchmarks.</p>',
+   rel:['types','measure','machine']},
+  {id:'types', term:'Types',
+   plain:'A promise about what a value can be, checked by a machine instead of by hope.',
+   gist:'A type constrains the set of values a variable can hold and the operations allowed on it. Static typing checks those promises before the program runs; dynamic typing checks at the moment of use. The value of a type is not ceremony — it is that a whole category of mistakes becomes unrepresentable.',
+   why:'Types are the cheapest specification you can write, and the only one a machine will enforce for free on code you did not write yourself.',
+   deeper:'<p>Two axes people conflate. <b>Static vs dynamic</b>: when checking happens. <b>Strong vs weak</b>: how much implicit coercion is allowed. Python is dynamic but fairly strong; JavaScript is dynamic and famously weak (<code>[] + {}</code>).</p><p>The design skill is <b>making illegal states unrepresentable</b>. A <code>User</code> with <code>email: string | null</code> and <code>verified: boolean</code> allows a verified user with no email; modelling it as <code>Unverified | Verified{email}</code> deletes that bug permanently. Rich types (sum types, newtypes, non-empty lists, branded IDs) push errors from runtime to compile time, which is the whole game.</p>',
+   rel:['contracts','static','invariants']},
+  {id:'state', term:'State and mutation',
+   plain:'The values your program remembers — and the source of most of its difficulty.',
+   gist:'State is everything your program is currently holding: variables, objects, files, database rows, the contents of a cache. A pure calculation is easy to reason about because it depends only on its inputs. State breaks that: the same call can now do different things depending on what happened earlier, and correctness becomes a claim about history rather than about a line of code.',
+   why:'“Where does this value change?” is the question that dominates debugging. Designs that concentrate and constrain state stay understandable; designs that scatter it do not.',
+   deeper:'<p>State multiplies your program’s possible situations. Three independent booleans mean eight states; add a nullable field and a retry counter and you are past what anyone can hold in their head. This is why the practical advice is always the same shape: <b>keep state small</b>, <b>keep it in one place</b>, <b>make transitions explicit</b> (state machines beat scattered flags), and <b>prefer deriving over storing</b> — a value you compute cannot go stale.</p>',
+   rel:['purity','invariants','sourceoftruth']},
+  {id:'callstack', term:'Functions and the call stack',
+   plain:'Calls nest; the stack remembers how to get back. Stack traces are that memory, printed.',
+   gist:'Calling a function pushes a frame with its arguments, locals, and the address to return to. That chain of frames is the call stack — the reason a stack trace can show you the whole path from <code>main</code> to the line that threw. Recursion is nothing more than a function that pushes a frame for itself, which is why it needs a base case and why deep recursion exhausts the stack.',
+   why:'Reading a stack trace correctly — bottom is where you started, top is where it broke, and the interesting frame is usually neither — is the single fastest debugging skill there is.',
+   deeper:'<p>Async code complicates this: when a callback or promise resolves, the original stack is long gone, which is why async stack traces are often useless without runtime support. Same for threads — each thread has its own stack.</p><p><b>Tail-call optimization</b> lets some languages reuse a frame when a call is the very last act of a function, making deep recursion safe (Scheme, Haskell, some Scala). Most mainstream runtimes do not do it, so convert deep recursion to iteration with an explicit stack when depth is unbounded.</p>',
+   rel:['memory','recursion','debugging']},
+  {id:'os', term:'Processes, threads, and the OS',
+   plain:'The operating system is the landlord: it hands out CPU time, memory, and access to hardware.',
+   gist:'A process is a running program with its own private memory space; threads are multiple execution paths inside one process, sharing that memory. Your code cannot touch hardware directly — it asks the kernel through a system call, which is why file reads, network sends, and even memory allocation are conversations with the OS rather than raw instructions.',
+   why:'Containers, ports, permissions, zombie processes, “too many open files” — all of it is OS behavior surfacing. It is the layer most people skip and most incidents live in.',
+   deeper:'<p>Sharing memory is exactly why threads are fast and dangerous: two threads mutating the same structure is a data race unless coordinated. Separate processes cannot corrupt each other but must communicate through pipes, sockets, or shared files.</p><p>Worth knowing by name: <b>file descriptors</b> (a small integer for every open file or socket — leaking them takes down servers), <b>signals</b> (SIGTERM asks politely, SIGKILL does not — graceful shutdown means handling the first), <b>the scheduler</b> (why your process pauses even when it has work), and <b>virtual memory</b> (every process sees its own address space; the kernel maps it to real RAM).</p>',
+   rel:['concurrency','races','failure']},
+  {id:'io', term:'I/O is where the time goes',
+   plain:'CPU work is nanoseconds; disk and network are millions of times slower. Learn the ladder.',
+   gist:'Reading from L1 cache takes about a nanosecond; main memory around a hundred; an SSD read tens of microseconds; a round trip across a data center half a millisecond; across the world, hundreds. On that scale a database call is not “a bit slower” than a function call — it is the difference between a second and a month.',
+   why:'Nearly every real performance problem is an I/O problem, usually an accidental one: a query inside a loop, a synchronous call in a hot path, a chatty API. Optimizing algorithms while ignoring this is a common and expensive mistake.',
+   deeper:'<p>A ladder worth memorizing (orders of magnitude, not exact): L1 ~1 ns · main memory ~100 ns · SSD read ~50 µs · same-datacenter round trip ~0.5 ms · disk seek ~5 ms · US↔Europe round trip ~100 ms.</p><p>The consequences follow directly: <b>batch</b> instead of looping (the N+1 query problem), <b>cache</b> what is expensive and stable, <b>parallelize</b> independent waits, and <b>move computation to the data</b> rather than dragging data to computation. Note also that waiting on I/O does not burn CPU — which is why one thread can juggle thousands of idle connections (see async).</p>',
+   rel:['caching','async','measure']},
+  {id:'abstraction', term:'Abstraction, and where it leaks',
+   plain:'Hiding detail so you can think about more at once — until the detail comes back.',
+   gist:'Every layer of software exists to let you use something without understanding all of it: a file system hides disk sectors, TCP hides packet loss, an ORM hides SQL. Abstraction is the fundamental tool of the discipline. It is also always incomplete — under load, under failure, or at the edges, the hidden detail reasserts itself.',
+   why:'The abstractions are getting taller and are increasingly generated for you. Value now sits with the people who can drop a level when the abstraction leaks — because everyone can operate the happy path.',
+   deeper:'<p>Spolsky’s <b>Law of Leaky Abstractions</b>: all non-trivial abstractions leak to some degree. TCP promises reliable delivery, but on a bad network the promise is kept slowly, and your timeout fires. An ORM promises objects, until it emits 400 queries for one page. Serverless promises no servers, until you meet cold starts.</p><p>The practical rule: <b>learn one layer below the one you work in</b>. Write SQL if you use an ORM; know HTTP if you use a client library; know the event loop if you write async code. Not every layer — just the next one down. That is where the leaks appear.</p>',
+   rel:['layering','decomposition','contracts']},
+],
+  ex:[
+  {id:'x-latency', title:'Build your own latency ladder', time:'40 min', level:'Hands-on',
+   plain:'Measure the six numbers that explain most performance problems, on your own machine.',
+   steps:'<li>Write a timing harness that runs an operation a million times and reports nanoseconds per operation.</li><li>Measure, in order: an in-memory array sum, a random access into a 1 GB array (cache miss), a small file read, a <code>localhost</code> HTTP request, a query against a local database, and an HTTPS request to a server on another continent.</li><li>Write the six numbers on an index card, in orders of magnitude. Look at how many zeros separate the top from the bottom.</li><li>Now find one place in code you own where a fast operation sits inside a loop around a slow one. That is your next optimization, and you found it by arithmetic instead of guessing.</li>',
+   hint:'<p>Beware the JIT and the OS page cache: warm up before you measure, and read a fresh file each iteration or you will be timing RAM. If a number looks impossibly good, you are measuring the wrong thing — which is itself the most useful lesson in benchmarking.</p>',
+   rel:['io','measure','caching']},
+  {id:'x-bytes', title:'Make the representation lie to you', time:'25 min', level:'Gentle',
+   plain:'Reproduce the four classic representation bugs in ten minutes, so you never ship them.',
+   steps:'<li>In any REPL: evaluate <code>0.1 + 0.2</code>, then sum <code>0.1</code> a hundred times and compare to <code>10</code>. Now redo it in integer cents.</li><li>Overflow a 32-bit integer deliberately (in Java/Go/C, or with <code>Int32Array</code> in JS) and watch a large positive number become negative.</li><li>Take the string <code>"café 👩‍💻"</code> and print its byte length, its code-point length, and what your language calls <code>.length</code>. Reverse it and see what breaks.</li><li>Encode it to UTF-8, decode it as Latin-1, and admire the mojibake — the exact bug behind every garbled name in every database you will ever inherit.</li>',
+   rel:['bytes','types','modeling']},
+  {id:'x-stack', title:'Exhaust the stack, then don’t', time:'30 min', level:'Gentle',
+   plain:'Feel the difference between stack and heap by running out of one of them.',
+   steps:'<li>Write a recursive function with no base case. Run it. Note the exact error and the depth it reached before dying.</li><li>Write a loop that appends to a list forever. Note that this error is different, arrives later, and often takes the machine down with it.</li><li>Rewrite a genuinely recursive task (walking a deeply nested directory tree, or a JSON document) as an iterative loop with an explicit stack you push and pop yourself. Confirm it survives depths that crashed the recursive version.</li><li>Read your original stack trace once more and name every frame in it. Traces stop being noise once you have written one on purpose.</li>',
+   rel:['callstack','memory','recursion']},
+  {id:'x-syscall', title:'Watch a program talk to the kernel', time:'30 min', level:'Hands-on',
+   plain:'See the syscalls behind a one-line file read — and count the ones you didn’t know about.',
+   steps:'<li>Write a three-line program that opens a file, reads it, and prints its length.</li><li>Trace it: <code>strace -c ./prog</code> on Linux, or <code>sudo dtruss ./prog</code> on macOS. Count how many system calls a “simple” program makes before it reaches your first line.</li><li>Find <code>openat</code>, <code>read</code>, <code>mmap</code>, and <code>close</code> in the output, and match them to lines of your code.</li><li>Now trace a <code>curl</code> to any URL and locate the DNS lookup, the TCP connect, and the TLS handshake. You have just seen every layer of chapter V from below.</li>',
+   rel:['os','io','network']},
+]},
+{
+  numeral:'II', slug:'structures', title:'Structures & Cost',
+  desc:'How data is arranged decides what a program can afford. This is the chapter that turns “it feels slow” into a diagnosis you can defend.',
+  topics:[
+  {id:'bigo', term:'Big-O and the cost of growth',
+   plain:'Not how fast it is — how much worse it gets as the input grows.',
+   gist:'Big-O describes the shape of a cost curve, ignoring constants and hardware. O(1) is flat, O(log n) barely rises, O(n) is proportional, O(n log n) is the price of sorting, O(n²) is the nested loop that kills you at scale, and O(2ⁿ) is a research problem. It answers one question: if the data gets ten times bigger, what happens?',
+   why:'It is the shared language for arguing about a design before anyone writes it — and the fastest way to spot the O(n²) hidden inside code that looks perfectly reasonable.',
+   deeper:'<p>Two honest caveats. <b>Constants matter at real sizes</b>: an O(n) scan of a contiguous array often beats an O(1) hash lookup for small n, because memory locality beats theory. And <b>Big-O hides the operation being counted</b> — O(n) disk reads and O(n²) integer comparisons are not comparable.</p><p>Also track <b>space</b> complexity, not just time; and know the difference between <b>worst case</b> (what your SLA must survive), <b>average case</b> (what your dashboard shows), and <b>amortized</b> cost. Hash tables are O(1) average and O(n) worst — which is exactly the gap an attacker aims at with crafted collision keys.</p>',
+   rel:['amortized','choosing','measure']},
+  {id:'arrays', term:'Arrays and contiguous memory',
+   plain:'One unbroken block. Instant indexing, expensive insertion, and beloved by the CPU cache.',
+   gist:'An array stores elements side by side, so element <em>i</em> is found by arithmetic — O(1), no searching. The costs are the mirror image: inserting or deleting in the middle means shifting everything after it, and growing means allocating a bigger block and copying. Dynamic arrays (Python lists, Java <code>ArrayList</code>, JS arrays, Go slices) hide this by over-allocating.',
+   why:'Contiguity is why arrays are quietly the fastest structure on modern hardware, and why a “more sophisticated” structure often loses to a plain array in practice.',
+   deeper:'<p>The CPU never loads one value; it loads a <b>cache line</b> (typically 64 bytes) containing its neighbors. Walking an array therefore gets its next several elements free, while chasing pointers around the heap pays full memory latency each hop. This single effect routinely makes arrays several times faster than linked structures for the same Big-O.</p><p>The same insight scales up: column-oriented databases store each field contiguously so an aggregate over one column reads only what it needs. Data layout is a performance decision, not a detail.</p>',
+   rel:['linked','bigo','io']},
+  {id:'linked', term:'Linked structures and references',
+   plain:'Nodes scattered in memory, each pointing to the next. Cheap surgery, slow traversal.',
+   gist:'A linked list holds elements in separate heap nodes joined by references. Inserting or removing is O(1) once you hold the right node — nothing shifts. But there is no indexing (finding the tenth item means ten hops), and each hop is a potential cache miss. Trees, graphs, and most object models are linked structures underneath.',
+   why:'Understanding references — that two variables can name the same object — is the prerequisite for reasoning about mutation, aliasing, equality, and every “why did that change?” bug.',
+   deeper:'<p>Linked lists are rarer in application code than interview questions suggest, but the underlying idea is everywhere: an object graph, a DOM tree, a linked queue in a scheduler, a chain of promises. What matters is the shared consequences — <b>aliasing</b> (mutating through one reference is visible through another), <b>identity vs equality</b> (same object, or merely equal contents?), and <b>reachability</b> (an object stays alive as long as something references it — the mechanism behind both garbage collection and memory leaks).</p>',
+   rel:['arrays','memory','purity']},
+  {id:'hashmap', term:'Hash maps',
+   plain:'The workhorse: near-instant lookup by key, in exchange for order and worst-case guarantees.',
+   gist:'A hash function turns a key into an array index, so lookup, insert, and delete are O(1) on average regardless of size. Collisions (two keys landing in the same slot) are handled by chaining or probing. Dictionaries, objects, caches, indexes, sets, deduplication — most of them are a hash map wearing a costume.',
+   why:'“Can I replace this scan with a lookup?” converts more O(n²) loops into O(n) than any other single move in everyday programming.',
+   deeper:'<p>Things that bite people. <b>Hash and equality must agree</b>: two equal keys must hash identically, so mutating a key after insertion loses it forever — use immutable keys. <b>Iteration order</b> is not guaranteed (Python 3.7+ and JS insertion order are conveniences, not universal). <b>Worst case is O(n)</b> when everything collides, which is a real denial-of-service vector — hence randomized seeds in modern runtimes.</p><p>Memory is the trade: hash maps stay fast by keeping spare capacity (a load factor around 0.75) and rehashing everything when they outgrow it.</p>',
+   rel:['arrays','trees','indexes']},
+  {id:'trees', term:'Trees and sorted order',
+   plain:'Hierarchy with O(log n) search — and the only structure that answers range questions.',
+   gist:'A balanced search tree keeps keys ordered so every comparison halves the remaining space: a million items in twenty steps. Unlike a hash map it preserves order, so it can answer “everything between March and June” and “the next key after this one”. Trees also model hierarchy directly: file systems, the DOM, syntax trees, org charts.',
+   why:'Database indexes are B-trees. Understanding why a tree is fast for ranges and prefixes, and useless for “contains this substring”, is what makes query plans readable rather than mystical.',
+   deeper:'<p><b>Balance</b> is the whole trick — an unbalanced tree degenerates into a linked list, so real implementations self-balance (red-black, AVL). A <b>B-tree</b> is the disk-friendly variant: wide nodes sized to a page, so each expensive read carries hundreds of keys. That is why it powers Postgres, MySQL, and SQLite.</p><p>Two relatives worth knowing: <b>tries</b> (prefix trees for autocomplete and routing) and <b>heaps</b> (a tree shape giving O(1) access to the smallest element — the guts of priority queues and schedulers).</p>',
+   rel:['hashmap','indexes','graphs']},
+  {id:'graphs', term:'Graphs and traversal',
+   plain:'Nodes and edges — the shape of dependencies, networks, and almost everything relational.',
+   gist:'A graph is the general case: things and the connections between them. Two traversals cover most needs — breadth-first (explore by distance, gives shortest paths on unweighted graphs) and depth-first (follow a path to its end, gives cycle detection and topological order). Your import graph, service topology, permission model and social features are all graphs.',
+   why:'Build order, dependency resolution, deadlock detection, blast-radius analysis, and “what breaks if this service dies?” are all one algorithm on a graph you already have.',
+   deeper:'<p>The vocabulary earns its keep: <b>directed vs undirected</b>, <b>cyclic vs acyclic</b>, <b>weighted</b> edges. A <b>DAG</b> (directed acyclic graph) is the shape of every build system, migration chain, and task pipeline — and <b>topological sort</b> is the algorithm that answers “what order can these run in?” while detecting the circular dependency if there is one.</p><p>Cycles are where systems break: circular imports, mutually-referencing services, deadlocked lock acquisition. Detecting a cycle is a depth-first search that finds an edge back to a node still on the stack — and it is worth being able to write from memory.</p>',
+   rel:['trees','recursion','layering']},
+  {id:'sorting', term:'Sorting and searching',
+   plain:'Sorting costs O(n log n) once and makes many later questions cheap.',
+   gist:'You will rarely implement a sort, but you must know what sorting buys: binary search in O(log n), efficient deduplication, merge joins, grouping, and range scans. The practical questions are whether the sort is <b>stable</b> (does it preserve the order of equal elements?), what the comparison function actually costs, and whether the data fits in memory.',
+   why:'Sorting is the clearest example of the central trade: pay an ordering cost once to make every subsequent query cheap. Indexes, search engines, and log-structured storage are all that same bargain.',
+   deeper:'<p>Practical knowledge over trivia: real libraries use hybrids (Timsort in Python and Java, pattern-defeating quicksort in C++ and Rust) that exploit partially-sorted input — so nearly-sorted data sorts nearly linearly. <b>Comparison sorts cannot beat O(n log n)</b>, but counting/radix sorts can when keys are small integers.</p><p>Two traps. Sorting by an unstable key gives non-deterministic pagination — always add a tiebreaker such as an ID. And a comparator must be consistent (transitive and antisymmetric) or the sort may crash or produce nonsense; a comparator that calls out to a database is the same sin as a query in a loop.</p>',
+   rel:['bigo','indexes','trees']},
+  {id:'recursion', term:'Recursion and divide-and-conquer',
+   plain:'Solve a big problem by solving smaller versions of it and combining the answers.',
+   gist:'A recursive solution has two parts: a base case small enough to answer directly, and a step that reduces the problem toward it. Divide-and-conquer is the powerful variant — split in half, solve both, merge — which is where O(n log n) comes from. Recursion is the natural fit whenever the data is itself recursive: trees, nested documents, expressions, file systems.',
+   why:'Recursion is a way of thinking about problems, not just a way of writing loops. Being fluent in it is what lets you decompose an unfamiliar problem instead of staring at it.',
+   deeper:'<p>Two failure modes and their fixes. <b>Depth</b>: recursion consumes stack frames, so unbounded depth needs an explicit stack instead. <b>Repeated work</b>: naive recursive Fibonacci recomputes the same values exponentially — <b>memoization</b> (cache results by argument) collapses it to linear, and that leap from exponential to linear is the whole content of dynamic programming.</p><p>The design habit worth stealing: state a precise contract for the function (“returns the sorted version of this sublist”), then trust it holds for the recursive call. Recursion is induction, and induction is proof.</p>',
+   rel:['callstack','trees','graphs']},
+  {id:'queues', term:'Stacks, queues, and priority queues',
+   plain:'Three tiny structures that quietly determine how a system behaves under load.',
+   gist:'A stack is last-in-first-out (undo, call frames, backtracking). A queue is first-in-first-out (work pipelines, request buffers, fairness). A priority queue always yields the most important item next (schedulers, timers, Dijkstra). They are small in code and enormous in consequence: choosing one is choosing a policy about who waits.',
+   why:'Every buffer, thread pool, and message broker is one of these. Understanding queue behavior is what turns “the site is slow under load” into “the queue is growing without bound, so latency is unbounded”.',
+   deeper:'<p><b>Little’s Law</b> is the piece of queueing theory every engineer should carry: average items in a system = arrival rate × average time in system. It follows that if arrivals exceed service rate for any sustained period, the queue and the latency both grow without limit — no amount of retrying helps, and the only cures are more capacity, less work, or shedding load.</p><p>Which is why unbounded queues are a design smell: they convert a fast failure into a slow, invisible one. A bounded queue that rejects work is usually kinder than an infinite queue that hides collapse.</p>',
+   rel:['messaging','failure','amortized']},
+  {id:'amortized', term:'Amortized cost and the tail',
+   plain:'The average is fine and every hundredth user is furious. Averages hide the failure.',
+   gist:'Amortized analysis spreads occasional expensive operations across many cheap ones — appending to a dynamic array is O(1) amortized even though one append in n triggers a full copy. That is honest for throughput, but it says nothing about the individual request that paid the whole bill. Latency lives in percentiles: p50, p95, p99.',
+   why:'Users experience the tail, not the mean. And in any request that fans out to ten services, the p99 of each becomes the typical experience of the whole — tail latency compounds.',
+   deeper:'<p>Sources of tail latency you will actually meet: garbage-collection pauses, cache misses, hash-map or array resizing, connection pool exhaustion, a lock held slightly too long, and retries piling onto an already-slow dependency.</p><p>Two habits follow. <b>Never report a mean latency</b> — it is dominated by the fast path and hides everything that matters. And prefer <b>predictable</b> costs to <b>fast average</b> costs in latency-sensitive paths: an incremental structure that never pauses may beat one that is faster on average but stalls for 200 ms.</p>',
+   rel:['bigo','measure','observability']},
+  {id:'choosing', term:'Choosing the right structure',
+   plain:'Start from the questions you must answer, not from the data you happen to have.',
+   gist:'The decision procedure is short. List the operations and their frequencies: lookup by key, iterate in order, insert at the end, delete from the middle, find a range, find the maximum. Then pick the structure whose cheap operations match your frequent ones. Hash map for keyed lookup, array for iteration and indexing, tree or sorted array for ranges, heap for “next most urgent”, set for membership and dedup.',
+   why:'This is the same reasoning as choosing a database, an index, or a cache — and it is exactly the judgment that generated code cannot exercise for you, because it depends on access patterns only you know.',
+   deeper:'<p>Two rules of thumb that survive contact with reality. <b>Start with the simplest thing (usually an array or a hash map) and change it when a measurement says to</b> — most data is small, and small data makes every structure fast. And <b>measure with realistic sizes</b>: an algorithm chosen for a thousand rows may be catastrophic at ten million, so know which regime you are designing for and write it down.</p><p>When one structure cannot serve two access patterns, the standard answer is to maintain two views of the same data — which is precisely what a database index is, and which is why you now own a consistency problem (see chapter IV).</p>',
+   rel:['bigo','indexes','tradeoffs']},
+],
+  ex:[
+  {id:'x-quadratic', title:'Watch O(n²) meet real data', time:'35 min', level:'Gentle',
+   plain:'Feel the difference between a nested loop and a hash lookup, at four input sizes.',
+   steps:'<li>Write the naive version: given two lists, find the common elements with a nested loop. Time it at n = 1,000 / 10,000 / 50,000.</li><li>Plot or just eyeball the numbers: ten times the input should be roughly a hundred times the time. Confirm it.</li><li>Rewrite it with a set or hash map, one pass each. Re-time at the same sizes, then at n = 1,000,000 — which the first version could never reach.</li><li>Now grep code you own for a loop inside a loop over the same collection. That is the same bug, waiting for your data to grow.</li>',
+   rel:['bigo','hashmap','measure']},
+  {id:'x-hashmap', title:'Build a hash map in sixty lines', time:'60 min', level:'Keystone',
+   plain:'Implement buckets, collisions, and resizing — then you will never mis-trust one again.',
+   steps:'<li>Implement <code>put</code>, <code>get</code>, and <code>delete</code> over an array of buckets, using a simple hash and chaining for collisions.</li><li>Add resizing: when load factor passes 0.75, double the array and rehash everything. Notice that one <code>put</code> in many is enormously expensive — amortized cost, felt directly.</li><li>Break it on purpose: make every key hash to the same bucket and watch O(1) become O(n).</li><li>Break it a second way: insert an object as a key, then mutate the field its hash depends on, and try to get it back. That is why keys must be immutable.</li>',
+   hint:'<p>Keep it honest and small — no clever bit tricks. The point is the shape: array + hash + collision policy + resize. Every dictionary you have ever used is this, tuned.</p>',
+   rel:['hashmap','amortized','bytes']},
+  {id:'x-locality', title:'Prove that memory layout matters', time:'30 min', level:'Hands-on',
+   plain:'Same Big-O, same operations, several times the speed — decided purely by layout.',
+   steps:'<li>Allocate a large 2-D matrix (say 4000×4000) and sum it row-major (walking along rows), then column-major (jumping down columns). Same number of additions.</li><li>Time both. The row-major version is typically several times faster, purely from cache lines.</li><li>Now compare summing one field across an array of objects versus a plain array of that field alone (structs-of-arrays). Same result, different memory story.</li><li>Write the ratio down. It is your standing evidence that Big-O is necessary but not sufficient.</li>',
+   rel:['arrays','io','measure']},
+  {id:'x-depgraph', title:'Turn your codebase into a graph', time:'45 min', level:'Hands-on',
+   plain:'Extract the import graph, topologically sort it, and find the cycles you did not know about.',
+   steps:'<li>Parse imports from a project you know (a regex over source files is plenty) and build an adjacency map of module → modules it imports.</li><li>Run a depth-first search that detects cycles — an edge to a node still on the current stack. Print any you find.</li><li>Topologically sort the acyclic part. The result is a legitimate build order, and the layers it reveals are your architecture as it actually is, not as documented.</li><li>Find the module with the most inbound edges. That is your highest-risk file: everything depends on it, so every change there has maximum blast radius.</li>',
+   rel:['graphs','layering','coupling']},
+]},
+{
+  numeral:'III', slug:'design', title:'Abstraction & Design',
+  desc:'Deciding what the pieces are and where the seams go. This is the least automatable part of the job, and the chapter to reread most often.',
+  topics:[
+  {id:'decomposition', term:'Decomposition',
+   plain:'Splitting a problem into parts you can think about one at a time.',
+   gist:'Human working memory holds a handful of things. A system holds thousands. Decomposition is the bridge: break the whole into parts small enough to understand alone, with relationships simple enough to understand together. Every design principle that follows is a heuristic for cutting well.',
+   why:'A model can write any single part. Deciding what the parts <em>are</em> — and being right — determines whether the next hundred changes are easy or agonizing. That decision compounds; the implementation does not.',
+   deeper:'<p>A good cut has three properties: each part <b>does one thing</b>, each part can be <b>understood without reading the others</b>, and a likely change touches <b>one part</b> rather than five. That last one is the real test — decompose along axes of change, not along nouns in the requirements document.</p><p>The classic misfire is splitting by technical layer when your changes arrive by feature. If adding “refunds” means editing a controller, a service, a repository, a DTO, and a validator across five directories, your decomposition is fighting your workload — and no amount of code quality inside those files will fix it.</p>',
+   rel:['coupling','encapsulation','change']},
+  {id:'coupling', term:'Coupling and cohesion',
+   plain:'Things that change together belong together; things that don’t should not know about each other.',
+   gist:'Coupling measures how much one module depends on the internals of another; cohesion measures how strongly the contents of a module belong together. The perennial goal is low coupling and high cohesion — because coupling is what makes a small change ripple, and low cohesion is what makes a module impossible to name.',
+   why:'Coupling is the true unit of technical debt. It is also the property that survives a rewrite of every line: you can regenerate an implementation cheaply, but a tangled dependency structure has to be untangled by hand.',
+   deeper:'<p>Coupling comes in grades, from tolerable to toxic: <b>data coupling</b> (passing a value) is fine; <b>stamp coupling</b> (passing a whole object to use one field) is wasteful; <b>control coupling</b> (passing a flag that switches behavior) is a smell; <b>content coupling</b> (reaching into another module’s internals or database tables) is the one that ends careers.</p><p>A practical diagnostic: if you cannot test module A without constructing half of module B, they are coupled. If a file’s name needs the word “and”, or is called <code>utils</code>, it has low cohesion. Both are measurable enough to act on.</p>',
+   rel:['decomposition','contracts','layering']},
+  {id:'contracts', term:'Interfaces and contracts',
+   plain:'The promise a component makes, stated separately from how it keeps it.',
+   gist:'An interface is what a caller may rely on: the operations, the parameters, the guarantees, the errors, and the conditions under which it works. It is a contract in the literal sense — a caller that respects the preconditions is owed the postconditions. Everything not in the contract is free to change without warning.',
+   why:'Contracts are how you can safely use code you have not read — including code generated in ten seconds. A well-specified boundary makes the implementation behind it disposable, which is precisely the property you want now.',
+   deeper:'<p>A complete contract states more than a type signature: <b>preconditions</b> (what must be true to call it), <b>postconditions</b> (what will be true after), <b>invariants</b> (what stays true throughout), <b>error behavior</b> (what it throws or returns when it cannot comply), and increasingly <b>operational</b> terms — is it idempotent, is it thread-safe, how long may it block?</p><p>Design contracts <b>narrow in, generous out</b> (accept the least you need, promise the most you can), and remember Hyrum’s Law: with enough users, every observable behavior of your system becomes something someone depends on, whether or not you promised it.</p>',
+   rel:['encapsulation','api','types']},
+  {id:'encapsulation', term:'Encapsulation and information hiding',
+   plain:'Hide the decisions most likely to change behind an interface that will not.',
+   gist:'Parnas’s original insight was not about keeping fields private — it was about which information a module hides. You identify the decisions likely to change (a storage format, an algorithm, a third-party vendor) and place each behind a boundary, so that when it changes, exactly one module changes with it.',
+   why:'Volatility is the thing to encapsulate, and in this era volatility includes entire implementation strategies. Whether a component is hand-written, generated, or delegated to a model should be an internal detail nobody else can observe.',
+   deeper:'<p>The test question is not “is this field private?” but “what would break if this decision changed tomorrow?” If swapping the payment provider means touching forty files, the vendor was never encapsulated no matter how many interfaces you declared.</p><p>The common anti-pattern is the <b>anemic wrapper</b>: a class whose getters and setters expose every internal field, so callers reassemble the logic themselves. That is encapsulation as ritual. Real encapsulation means the caller cannot express an invalid operation because the interface does not offer one.</p>',
+   rel:['contracts','invariants','change']},
+  {id:'invariants', term:'Invariants',
+   plain:'Statements that are always true. Design so that breaking one is impossible, not merely rare.',
+   gist:'An invariant is a property your system guarantees: an order always has at least one line item, a balance never goes negative, a tree is always balanced, every user record has a unique email. Bugs are invariant violations. The design skill is deciding which invariants exist, who enforces them, and where the enforcement lives.',
+   why:'Invariants are executable specifications. When the volume of code being produced rises, the leverage moves from checking each line to stating the properties that all of it must satisfy.',
+   deeper:'<p>Enforcement, from strongest to weakest: make it <b>unrepresentable</b> in the type system (a <code>NonEmptyList</code> cannot be empty); enforce it at <b>construction</b> (a constructor that validates, so an invalid object never exists); enforce it in the <b>database</b> (constraints, foreign keys, unique indexes); assert it at <b>runtime</b>; or check it in a <b>test</b>. Push as far up that list as the language allows — cheaper checks fail earlier and more loudly.</p><p>A rule that saves enormous pain: <b>validate at the boundary, then trust inside</b>. Parse untrusted input once into a type that guarantees validity, rather than re-checking the same string in twelve functions and eventually forgetting in one.</p>',
+   rel:['types','contracts','property']},
+  {id:'purity', term:'Purity and immutability',
+   plain:'A function with no memory and no side effects is one you can fully understand alone.',
+   gist:'A pure function returns the same output for the same input and changes nothing outside itself. Immutable data cannot be modified after creation — you make a new version instead. Together they eliminate a whole species of bug: nothing changes behind your back, so a value you hold is a value you can trust.',
+   why:'Pure functions are the easiest code in the world to test, cache, parallelize, and verify — which makes them the safest place to put logic you did not write by hand.',
+   deeper:'<p>Programs must eventually do impure things — write files, call services, print. The durable pattern is the <b>functional core, imperative shell</b>: keep decision-making logic pure and push I/O to a thin outer layer. The core becomes trivially testable without mocks; the shell is small enough to verify by inspection.</p><p>Immutability also buys thread safety for free — a value that never changes cannot be involved in a data race — which is why it underpins React’s rendering, Redux, Clojure, event sourcing, and Git itself. The cost is copying, which structural sharing (persistent data structures) makes far cheaper than it sounds.</p>',
+   rel:['state','concurrency','testing']},
+  {id:'composition', term:'Composition over inheritance',
+   plain:'Assemble behavior from parts you hold, rather than inheriting it from ancestors.',
+   gist:'Inheritance couples a subclass to its parent’s internals permanently and forces a single rigid taxonomy — and real domains refuse to be taxonomies. Composition builds objects from smaller collaborators passed in, so behavior can be swapped, tested, and recombined. “Has-a” survives changing requirements far better than “is-a”.',
+   why:'Deep class hierarchies are the classic way a codebase becomes unreadable to a newcomer — human or machine — because behavior lives in five files none of which contain the method you are reading.',
+   deeper:'<p>The canonical failure is the <b>fragile base class</b>: an innocuous change in a parent silently breaks subclasses that depended on its internal call order. The <b>Liskov Substitution Principle</b> states the constraint precisely — a subtype must be usable anywhere its supertype is, without surprises — and most inheritance hierarchies violate it within a year.</p><p>Inheritance is still right for genuine, stable is-a relationships and for interface implementation. The reliable rule: <b>inherit interfaces, compose implementations</b>. And when you catch yourself adding a boolean flag to a base class to make one subclass behave differently, you have already outgrown the hierarchy.</p>',
+   rel:['contracts','layering','change']},
+  {id:'naming', term:'Naming',
+   plain:'The cheapest documentation and the highest-leverage design feedback you will get.',
+   gist:'Names are the interface between your code and the next person’s understanding. Good names say what a thing is and what it guarantees, at the level of the domain rather than the mechanism — <code>overdueInvoices</code>, not <code>filteredList2</code>. Naming is also a design test: a thing that resists naming is usually a thing that does too much.',
+   why:'Precise domain vocabulary is now literally the input to code generation as well as to comprehension. Ambiguity in a name propagates into everything built on top of it.',
+   deeper:'<p>Practical rules that hold up: <b>length should scale with scope</b> (<code>i</code> in a three-line loop is fine, <code>d</code> as a module-level export is not); <b>name what it means, not how it is stored</b>; <b>keep one word per concept</b> across the codebase (never <code>fetch</code>, <code>get</code>, and <code>retrieve</code> for the same act); and <b>avoid negated booleans</b> — <code>isNotDisabled</code> will be misread.</p><p>Beyond individual names, a shared <b>ubiquitous language</b> — the same words in conversation, code, database, and UI — removes an entire class of translation bugs. When a name is contested, the underlying disagreement is nearly always about the model, not the word.</p>',
+   rel:['decomposition','reading','requirements']},
+  {id:'dry', term:'DRY — and when duplication is cheaper',
+   plain:'Every fact should live in one place. But two things that merely look alike are not one fact.',
+   gist:'The real rule is about knowledge, not characters: a business rule, a schema, a constant should have one authoritative home. Duplicated knowledge drifts, and drift is where bugs hide. But abstracting two coincidentally similar pieces of code fuses two independent things, and the next change to one will contort the shared abstraction.',
+   why:'Generated code makes duplication nearly free to create and just as hard as ever to maintain. The judgment about which repetition is knowledge and which is coincidence is entirely yours.',
+   deeper:'<p>Sandi Metz’s formulation is the useful one: <b>duplication is far cheaper than the wrong abstraction</b>. A premature abstraction accumulates flags and special cases until it is harder to read than the duplication it replaced, and by then it has many callers and cannot be removed.</p><p>Practical policy: duplicate freely on the first and second occurrence; on the third, look for the underlying concept and name it. And distinguish <b>essential</b> duplication (the same rule stated twice — always fix) from <b>incidental</b> duplication (similar shape, different reasons — usually leave alone).</p>',
+   rel:['change','decomposition','simplicity']},
+  {id:'layering', term:'Layering and the direction of dependencies',
+   plain:'Dependencies should point one way — toward the stable, away from the volatile.',
+   gist:'Arrange code so that arrows point inward: policy at the center (domain rules), mechanism at the edges (databases, HTTP, UI, third-party services). The domain must not import the database driver; the database adapter imports the domain’s interface. Then infrastructure becomes replaceable, and the rules stay testable in isolation.',
+   why:'This is what makes a system durable while its parts churn. The frameworks and vendors at the edges will all be replaced; the business rules at the center are the asset.',
+   deeper:'<p>The mechanism is <b>dependency inversion</b>: the inner layer defines the interface it needs (<code>OrderRepository</code>), the outer layer implements it (<code>PostgresOrderRepository</code>), and something at startup wires them together. Same idea, many names — hexagonal architecture, ports and adapters, clean architecture, onion architecture.</p><p>The payoff is concrete: the core can be tested with no database, an infrastructure swap touches one adapter, and the dependency graph is acyclic so you can reason about build and change order. The cost is indirection, and it is a genuine cost — apply it at boundaries that will actually move, not uniformly out of doctrine.</p>',
+   rel:['coupling','graphs','monolith']},
+  {id:'change', term:'Designing for change (and YAGNI)',
+   plain:'You cannot predict the future, so optimize for being able to change your mind cheaply.',
+   gist:'Two failure modes bracket this. Over-engineering builds elaborate flexibility for requirements that never arrive, and the abstraction is always wrong for the change that does come. Under-engineering hardcodes assumptions so deeply that any change is a rewrite. The way through is not prediction — it is keeping decisions reversible and deferring the irreversible ones.',
+   why:'When implementation is cheap and fast to produce, the expensive mistakes are structural: the schema everyone depends on, the boundary drawn in the wrong place, the vendor woven through the core.',
+   deeper:'<p>Sort decisions by reversibility. <b>Cheap to reverse</b> (an internal function’s shape, a library in one module): decide fast, move on. <b>Expensive to reverse</b> (public API shape, data model, service boundaries, storage engine): slow down, prototype, write it down, ask what unwinding it would cost.</p><p><b>YAGNI</b> — you aren’t gonna need it — is the right default for features and configuration knobs. It is <em>not</em> a license to skip boundaries in the places above. The synthesis: build the simplest thing that works, but place your seams where you already know change happens (I/O, vendors, policy).</p>',
+   rel:['tradeoffs','simplicity','adr']},
+],
+  ex:[
+  {id:'x-seams', title:'Find the seams in a 300-line function', time:'50 min', level:'Keystone',
+   plain:'Take one long function — yours or a model’s — and decompose it on paper before touching it.',
+   steps:'<li>Print or paste a genuinely long function. In the margin, label each block with the one thing it does. Blocks that need “and” are your first clue.</li><li>Mark every input it reads and every effect it causes (I/O, mutation, globals). Draw a line between the pure decision-making and the effects.</li><li>Propose three to five named units with explicit contracts — inputs, outputs, and what each promises. Write the signatures only; no bodies yet.</li><li>Now implement it. Notice that once the seams and contracts exist, the bodies are the easy part — and the part you could hand to anyone.</li>',
+   hint:'<p>If a proposed unit needs six parameters, the cut is probably in the wrong place. Try grouping the parameters that always travel together — that group is usually a missing concept with a name.</p>',
+   rel:['decomposition','contracts','purity']},
+  {id:'x-contract', title:'Write the interface first', time:'40 min', level:'Hands-on',
+   plain:'Specify a component completely enough that someone else could implement it correctly.',
+   steps:'<li>Pick a real component you need — a rate limiter, a retry policy, a price calculator.</li><li>Write only the interface: operations, types, and for each one a written precondition, postcondition, and error behavior. No implementation.</li><li>Hand the contract to someone else (or to a model, in a fresh session with no other context) and have them implement it.</li><li>Compare what came back against your contract. Every disagreement is a gap in your specification, not a failure of the implementer. Fix the contract and repeat.</li>',
+   hint:'<p>The gaps are almost always in the boring parts: what happens on empty input, on concurrent calls, on the boundary value, on the second call with the same arguments. Those are the clauses that matter.</p>',
+   rel:['contracts','llmreview','spec']},
+  {id:'x-illegal', title:'Make an illegal state unrepresentable', time:'35 min', level:'Hands-on',
+   plain:'Delete a class of bugs permanently by changing the type instead of adding a check.',
+   steps:'<li>Find a type in your code with fields that are only valid in certain combinations — a status string plus a nullable <code>cancelledAt</code>, or a flag plus an optional payload.</li><li>List the states the current type allows, then the states that are actually legal. The difference is your bug surface.</li><li>Redesign it so the illegal combinations cannot be constructed: a sum type / tagged union, a private constructor with a validating factory, or a dedicated non-empty or non-negative wrapper type.</li><li>Delete the now-impossible runtime checks and count them. That count is what the type bought you.</li>',
+   rel:['invariants','types','static']},
+  {id:'x-three-designs', title:'Three designs, one feature', time:'60 min', level:'Keystone',
+   plain:'Practise the actual senior skill: generating alternatives and arguing them honestly.',
+   steps:'<li>Take a feature you are about to build. Sketch three genuinely different designs at one page each — not variations, different shapes (e.g. synchronous in-process, queued and asynchronous, and derived-on-read).</li><li>For each, write: what becomes easy, what becomes hard, what it costs to reverse, and what has to be true for it to be the right choice.</li><li>Pick one and write down the two conditions that would make you switch to another.</li><li>Keep the page. When the requirement changes in six months, you will already have thought about it — and you will find out which of your predictions were wrong, which is how design judgment is actually built.</li>',
+   rel:['tradeoffs','adr','change']},
+]},
+{
+  numeral:'IV', slug:'data', title:'Data & Persistence',
+  desc:'Code is replaceable; data is not. The schema you choose outlives the language, the framework, and usually the team — which makes this the least forgiving chapter.',
+  topics:[
+  {id:'modeling', term:'Data modeling',
+   plain:'Naming the things your domain contains and the relationships between them.',
+   gist:'Before tables or types, you decide what exists: entities (Order, Customer), their attributes, and how they relate — one-to-one, one-to-many, many-to-many. Get this right and features fall out naturally; get it wrong and every feature fights the model, forever, in ways no amount of clean code repairs.',
+   why:'The data model is the most expensive thing in the system to change and the thing most often decided in the first week. It deserves more of your attention than any implementation choice.',
+   deeper:'<p><b>Normalization</b> means each fact lives in exactly one place, so it cannot become inconsistent. The normal forms are formalizations of that one idea. <b>Denormalization</b> deliberately duplicates data for read speed, accepting the obligation to keep copies in sync — a legitimate trade, but a trade.</p><p>Two modelling habits that pay off for years: <b>record events, not just current state</b> (store that a refund happened at a time for a reason, not only that the status is now <code>refunded</code>) — you can always derive current state from history but never the reverse. And <b>be explicit about identity</b>: what makes two rows the same thing, and does that identity survive a name change, a merge, or a re-import?</p>',
+   rel:['relational','sourceoftruth','types']},
+  {id:'relational', term:'Relational databases and SQL',
+   plain:'Tables, rows, and a declarative language for asking questions about them.',
+   gist:'The relational model stores data in tables and lets you state <em>what</em> you want rather than how to get it; a query planner works out the how. Add constraints (primary keys, foreign keys, unique, not-null, check) and the database itself enforces your invariants — even against buggy application code, a stray script, or a manual fix at 2am.',
+   why:'SQL is the most durable skill in this guide. It has outlived every ORM built to avoid it, and it is the layer where correctness can be enforced for everyone at once.',
+   deeper:'<p>Concepts worth true fluency: <b>joins</b> (and why an accidental cross join returns nine million rows), <b>GROUP BY</b> with aggregates, <b>window functions</b> (ranking and running totals without self-joins), and <b>CTEs</b> for readable multi-step queries. Together they replace a startling amount of application code — and run next to the data instead of dragging it across a network.</p><p>ORMs are a legitimate convenience and a classic leaky abstraction. Know what SQL yours emits, especially the <b>N+1 query</b>: a loop over parents that fires one query per child. It is the single most common performance bug in web applications, and it is invisible until you look at the query log.</p>',
+   rel:['indexes','transactions','abstraction']},
+  {id:'indexes', term:'Indexes',
+   plain:'A sorted side-structure that turns a full scan into a lookup — and slows every write.',
+   gist:'Without an index the database reads every row to find the matching ones. An index (usually a B-tree) keeps a sorted copy of one or more columns with pointers back to the rows, converting O(n) scans into O(log n) seeks. The price is real: every insert and update must also maintain every index, and each one consumes storage and memory.',
+   why:'“The database is slow” is, more often than anything else, a missing index or an index the query cannot use. Ten minutes of reading a query plan routinely beats a week of application optimization.',
+   deeper:'<p>The rules that explain most surprises. <b>Column order in a composite index matters</b>: an index on (a, b) serves queries filtering on a, or a and b — but not b alone. <b>Wrapping a column in a function defeats the index</b> (<code>WHERE lower(email) = …</code> needs an expression index). <b>Low-selectivity columns are poor index candidates</b> — an index on a boolean rarely helps. And a <b>covering index</b> that contains every column the query needs avoids touching the table at all.</p><p>Always confirm with <code>EXPLAIN ANALYZE</code> rather than intuition: it tells you what the planner actually chose, how many rows it expected, and how many it found. A large gap between estimate and reality usually means stale statistics.</p>',
+   rel:['trees','measure','relational']},
+  {id:'transactions', term:'Transactions and ACID',
+   plain:'A group of operations that either all happen or none do.',
+   gist:'A transaction gives you four guarantees. Atomicity: all-or-nothing, so a crash mid-way leaves no half-transfer. Consistency: constraints hold at the boundaries. Isolation: concurrent transactions do not see each other’s partial work. Durability: once committed, it survives a power cut. These are the strongest correctness guarantees available anywhere in your stack — use them.',
+   why:'Almost every “impossible” data corruption story is a missing transaction boundary or a multi-step operation that was assumed to be atomic and was not.',
+   deeper:'<p>The practical skill is choosing <b>boundaries</b>: everything that must be consistent together belongs in one transaction, and nothing else should be. Long transactions hold locks and block others; transactions that wrap network calls to third parties are a classic outage.</p><p>The hard case is state that spans systems — charge the card and record the order. There is no distributed transaction available to you in practice, so the standard answers are the <b>outbox pattern</b> (write the intent to send in the same transaction as the data, deliver it separately) and <b>sagas</b> (a sequence of steps each with a compensating undo). Both accept temporary inconsistency in exchange for being possible.</p>',
+   rel:['isolation','idempotency','consistency']},
+  {id:'isolation', term:'Isolation levels and lost updates',
+   plain:'Concurrent transactions interfere in specific, named ways. Your default level probably allows some.',
+   gist:'Full serializability is expensive, so databases offer weaker levels — read committed, repeatable read, snapshot, serializable — each permitting particular anomalies: dirty reads, non-repeatable reads, phantoms, and write skew. Most databases default to read committed, under which the classic read-modify-write race silently loses updates.',
+   why:'This is the highest-severity bug class that tests never catch: it needs concurrency to appear, so it shows up first in production, with money or inventory attached.',
+   deeper:'<p>The canonical failure: two requests read a balance of 100, each subtract 30, each write 70. One update vanished. Three real fixes: do the arithmetic <b>in the database</b> (<code>SET balance = balance - 30</code> with a check constraint), take an explicit lock (<code>SELECT … FOR UPDATE</code>), or use <b>optimistic concurrency</b> — a version column, and an update that fails if the version moved.</p><p>Optimistic control scales better under low contention and pushes the conflict to the user (“this record changed since you loaded it”), which is often the honest answer. Under high contention, pessimistic locking is simpler — but watch for deadlocks and always acquire locks in a consistent order.</p>',
+   rel:['transactions','races','idempotency']},
+  {id:'migrations', term:'Schema migration and evolution',
+   plain:'Changing the shape of live data while the old code is still running.',
+   gist:'Schemas change constantly, but you cannot stop the world. Migrations must be versioned, ordered, repeatable, and above all <em>compatible with both the old and new code</em>, because during any deploy both are running at once. A migration that breaks the previous version turns a routine release into an outage with no rollback path.',
+   why:'This is where careless changes cause irreversible damage. Code can be rolled back; a dropped column cannot.',
+   deeper:'<p>The reliable technique is <b>expand and contract</b>, in separate deploys: (1) add the new column, nullable, and backfill in batches; (2) deploy code that writes both old and new; (3) deploy code that reads the new; (4) only once nothing references the old, drop it. Slow, boring, and it never takes the site down.</p><p>Operational hazards worth knowing: adding a column with a default or an index can lock a large table for minutes (use concurrent index builds), backfills should be chunked and throttled, and every migration should be tested against a realistic-size copy of production. Rehearse the rollback, not just the roll-forward.</p>',
+   rel:['cicd','contracts','api']},
+  {id:'nosql', term:'NoSQL and access-pattern-first design',
+   plain:'Non-relational stores trade generality for a specific shape of speed and scale.',
+   gist:'Document stores keep nested records that mirror your objects; key-value stores offer raw speed on a single lookup; wide-column stores scale writes across machines; graph databases traverse relationships natively; search engines invert text into terms. Each drops something — joins, transactions, ad-hoc querying — in exchange for what it is good at.',
+   why:'The choice is not fashion. It is whether your access patterns are known and narrow (NoSQL can be excellent) or open-ended and evolving (relational usually wins, and wins again in year three).',
+   deeper:'<p>The design inversion matters: in relational modelling you model the data and query it however you like later; in most NoSQL stores you model the <b>queries first</b> and shape storage to serve them. That is a strength when access patterns are stable and a trap when they change, because there is no query planner to rescue you.</p><p>The honest default for most applications is a relational database, which now handles JSON columns, full-text search, and considerable scale. Reach for a specialized store when you have a specific, measured reason — and expect to run both, which means you have signed up for keeping them consistent.</p>',
+   rel:['modeling','consistency','tradeoffs']},
+  {id:'caching', term:'Caching and invalidation',
+   plain:'Keep a copy of an expensive answer near where it is needed. Then keep it honest.',
+   gist:'Caching trades freshness for speed and load. It appears at every layer: CPU cache, memoized function, application cache, Redis, HTTP cache headers, CDN, browser. Adding a cache is easy and often dramatic. Deciding when the copy becomes wrong — and what a wrong answer costs — is the entire difficulty.',
+   why:'A cache is a second source of truth you have volunteered to maintain. That is a real architectural commitment, and it is worth making deliberately rather than as a quick fix for a slow query.',
+   deeper:'<p>Invalidation strategies, in rough order of safety: <b>TTL</b> (accept staleness for a bounded time — simplest and usually sufficient), <b>write-through</b> (update the cache with the data), <b>explicit invalidation</b> on change (correct until someone forgets a path), and <b>versioned keys</b> (change the key rather than delete the value — no stale reads possible).</p><p>Failure modes with names: <b>stampede</b> (a popular key expires and a thousand requests recompute it at once — fix with a lock or early recomputation), <b>cache penetration</b> (repeated misses for keys that do not exist — cache the negative too), and <b>silent divergence</b>, the worst one, where the cache has been wrong for weeks and nobody checks. Measure hit rate <em>and</em> correctness.</p>',
+   rel:['io','consistency','sourceoftruth']},
+  {id:'consistency', term:'Consistency models',
+   plain:'“The data is correct” is not one thing. Choose which guarantee you actually need.',
+   gist:'Strong consistency means every read sees the latest write — simple to reason about, expensive to coordinate. Eventual consistency means replicas converge given time, so a read may be briefly stale — cheaper, more available, and much harder to reason about. Between them sit useful middles like read-your-own-writes and monotonic reads.',
+   why:'Choosing per use case rather than globally is a mark of maturity: a bank balance needs strong consistency; a follower count does not, and pretending otherwise costs availability for nothing.',
+   deeper:'<p><b>CAP</b> is the famous framing: when the network partitions, you must choose between consistency and availability. The practical version is that partitions are rare but latency is constant, so the everyday trade is really consistency versus speed (sometimes written PACELC).</p><p>The failures users notice are the intuitive ones: posting a comment and not seeing it (no read-your-own-writes), or seeing a value go forwards then backwards (no monotonic reads). Both are fixable with routing tricks — pin the user to a replica, or read from the primary briefly after a write — and both are far cheaper than global strong consistency.</p>',
+   rel:['distributed','caching','transactions']},
+  {id:'idempotency', term:'Idempotency',
+   plain:'Doing it twice has the same effect as doing it once. The property that makes retries safe.',
+   gist:'Networks fail ambiguously: a timeout tells you nothing about whether the work happened. Since the client must retry, every operation must tolerate being received more than once. An idempotent operation makes that safe by construction — assigning a value is naturally idempotent, incrementing a counter or charging a card is not.',
+   why:'Retries are everywhere and mostly automatic — in clients, queues, proxies, and job runners. Without idempotency, every retry is a potential double charge, and “exactly once” is not something the network can give you.',
+   deeper:'<p>The standard implementation is an <b>idempotency key</b>: the caller generates a unique ID per logical operation; the server records it with the result in the same transaction as the effect; a repeat with a known key returns the stored result instead of acting again. Payment APIs work exactly this way, and so should yours.</p><p>Related tools: <b>natural keys</b> and unique constraints (let the database reject the duplicate), <b>conditional updates</b> (compare-and-set on a version), and designing for <b>at-least-once delivery with idempotent consumers</b> — which is how you get effectively-once behavior out of infrastructure that cannot promise it.</p>',
+   rel:['failure','messaging','transactions']},
+  {id:'sourceoftruth', term:'Source of truth and derived data',
+   plain:'For every fact, exactly one place is authoritative. Everything else is a copy that can be rebuilt.',
+   gist:'Caches, search indexes, read replicas, materialized views, analytics warehouses and denormalized columns are all derived data. Systems stay comprehensible when it is explicit which store owns each fact and which merely reflects it — and when every derived thing can be regenerated from the source on demand.',
+   why:'“Which number is right?” is one of the most corrosive questions an organization can face. It comes from ambiguity about ownership, not from bugs.',
+   deeper:'<p>Two disciplines follow. First, <b>derived data must be reproducible</b>: if you cannot rebuild the search index or the cache from the source, it has quietly become a source of truth without the durability guarantees of one. Second, <b>write to the source, then propagate</b> — dual writes to two systems from application code will diverge the first time one call fails.</p><p>This is also the cleanest argument for event-driven design: an ordered log of facts is an excellent source of truth precisely because every other view can be rebuilt by replaying it — which turns a corrupted index from an incident into a chore.</p>',
+   rel:['caching','modeling','messaging']},
+],
+  ex:[
+  {id:'x-explain', title:'Read a query plan and fix it', time:'45 min', level:'Keystone',
+   plain:'Turn a slow query into a fast one with an index, and prove it with the planner.',
+   steps:'<li>Create a table with a million generated rows. Query it with a <code>WHERE</code> on an unindexed column and time it.</li><li>Run <code>EXPLAIN ANALYZE</code> on the same query. Find the sequential scan, the estimated rows, and the actual rows.</li><li>Add the index, rerun both. Watch the scan become an index scan and the time drop by orders of magnitude.</li><li>Now defeat your own index three ways: wrap the column in a function, query the second column of a composite index alone, and use a leading wildcard <code>LIKE</code>. Confirm with the plan each time that the index went unused.</li>',
+   hint:'<p>Then measure the cost side: time a bulk insert of 100k rows with and without the index in place. Indexes are not free, and knowing the write penalty is what lets you argue against adding six of them.</p>',
+   rel:['indexes','measure','relational']},
+  {id:'x-lostupdate', title:'Lose an update on purpose', time:'40 min', level:'Keystone',
+   plain:'Make money disappear with two concurrent transactions, then fix it three different ways.',
+   steps:'<li>Create an accounts table with a balance. Write a “withdraw” function that reads the balance, subtracts in application code, then writes it back.</li><li>Run it from twenty concurrent workers, ten withdrawals each. Compare the final balance to the arithmetic. Money is missing.</li><li>Fix #1: do it in one statement — <code>UPDATE … SET balance = balance - :amt WHERE balance >= :amt</code>. Fix #2: <code>SELECT … FOR UPDATE</code>. Fix #3: an optimistic version column with a retry loop.</li><li>Re-run the concurrency test on each. Then note which of your existing code paths does read-modify-write and is currently unprotected.</li>',
+   rel:['isolation','races','transactions']},
+  {id:'x-migration', title:'A zero-downtime rename', time:'50 min', level:'Hands-on',
+   plain:'Rename a column in four deploys without ever breaking the running application.',
+   steps:'<li>Start with a table and application code that reads and writes <code>full_name</code>. The goal is <code>display_name</code>, with no downtime and rollback available at every step.</li><li>Deploy 1: add <code>display_name</code>, nullable; backfill in batches with a sleep between them.</li><li>Deploy 2: write to both columns, read the old. Deploy 3: read the new, still write both. Deploy 4: stop writing the old, then drop it.</li><li>After each step, verify that the <em>previous</em> version of the code would still work. That property — not the end state — is what makes the migration safe.</li>',
+   rel:['migrations','cicd','api']},
+  {id:'x-idempotent', title:'Survive the ambiguous timeout', time:'40 min', level:'Hands-on',
+   plain:'Build an endpoint that charges once even when the client retries five times.',
+   steps:'<li>Write a POST endpoint that records a “charge” row. Add an artificial delay and have the client time out and retry three times. Count the rows — you have three charges.</li><li>Add an idempotency key: the client sends a UUID per logical charge; the server stores key → result in the <em>same transaction</em> as the charge.</li><li>On a repeat key, return the stored result without re-charging. Re-run the retry storm and confirm exactly one row.</li><li>Now try the naive version — check-then-insert in two statements — under concurrency, and watch the race slip through. Only a unique constraint or a single atomic statement actually closes it.</li>',
+   rel:['idempotency','failure','transactions']},
+]},
+{
+  numeral:'V', slug:'systems', title:'Systems & Architecture',
+  desc:'What changes when one program becomes many, spread across machines, talking over a network that is allowed to fail at any moment.',
+  topics:[
+  {id:'network', term:'The network, one layer at a time',
+   plain:'A URL becomes a DNS lookup, a TCP connection, a TLS handshake, and finally your request.',
+   gist:'Layers stack: IP moves packets between machines, TCP adds ordering and reliability on top, TLS adds encryption and identity, HTTP defines the request and response, and your API defines meaning. Each layer has its own failure modes and timeouts, and any of them can be the reason “the call is slow”.',
+   why:'Nearly every integration problem — hanging requests, certificate errors, connection resets, mysterious 30-second delays — is one specific layer misbehaving. Naming the layer is most of the fix.',
+   deeper:'<p>Facts that explain a lot of production behavior. <b>Connections are expensive to establish</b> (DNS + TCP handshake + TLS handshake can cost several round trips before a byte of yours moves) — which is why connection pooling and keep-alive matter so much. <b>The network can drop, delay, duplicate, and reorder</b>; TCP hides most of that at the cost of head-of-line blocking. <b>Nothing tells you a peer died</b> — you find out by timing out, which is why every network call needs an explicit timeout.</p><p>HTTP specifics worth real fluency: status code families, idempotent versus non-idempotent methods, caching headers, and why HTTP/2 multiplexing changed front-end performance advice that is still repeated from the HTTP/1.1 era.</p>',
+   rel:['api','failure','io']},
+  {id:'api', term:'API design at the boundary',
+   plain:'A public interface you cannot refactor, because you do not control the callers.',
+   gist:'Inside a program, a bad interface is a refactor. Across a boundary — public API, service-to-service, a library others depend on — it is a migration involving other people’s calendars. So boundaries deserve disproportionate care: clear resources and verbs, consistent errors, explicit pagination, and versioning planned before you need it.',
+   why:'Boundaries are where architecture actually lives. Everything behind one can be rewritten, regenerated, or replaced; the boundary itself is the commitment.',
+   deeper:'<p>Style is secondary to consistency: REST (resources and HTTP verbs) is the right default, RPC/gRPC suits high-volume internal calls, GraphQL suits many clients with divergent data needs at the cost of server-side complexity. What matters in all of them is <b>predictability</b> — same shape of error everywhere, same pagination, same date format, no surprises.</p><p>Compatibility rules that keep you out of trouble: <b>adding</b> optional fields is safe, <b>removing or renaming</b> is not; <b>never repurpose</b> an existing field’s meaning; treat unknown fields as ignorable so old clients survive new servers; and version explicitly when you must break, with a stated deprecation window. Design responses to be extensible from day one (an object, not a bare array).</p>',
+   rel:['contracts','migrations','monolith']},
+  {id:'stateless', term:'Statelessness and horizontal scale',
+   plain:'If a server remembers nothing between requests, you can run a hundred of them.',
+   gist:'A stateless service keeps no per-client state in memory: everything needed comes with the request or from shared storage. That constraint is what makes it possible to add instances behind a load balancer, restart any of them at any time, and survive the loss of one — none of which is safe when a user’s session lives in one process’s memory.',
+   why:'Vertical scale (a bigger machine) runs out; horizontal scale does not. Statelessness is the price of admission, and it is a design decision made early or paid for painfully later.',
+   deeper:'<p>State does not vanish, it moves: sessions into a signed token or a shared store, uploads into object storage, background work into a queue, coordination into the database. What remains in process memory should be caches you can lose without harm.</p><p>Related and worth internalizing: <b>sticky sessions</b> are a workaround with a failure mode built in; <b>graceful shutdown</b> (stop accepting, finish in-flight, then exit on SIGTERM) is what makes rolling deploys invisible; and <b>health checks</b> should distinguish liveness (am I broken?) from readiness (can I take traffic now?) or you will restart healthy instances that were merely warming up.</p>',
+   rel:['os','failure','cicd']},
+  {id:'concurrency', term:'Concurrency vs parallelism',
+   plain:'Concurrency is dealing with many things at once; parallelism is doing many at once.',
+   gist:'Concurrency is a structuring concept — interleaving independent tasks so progress continues while one waits. Parallelism is a hardware fact — genuinely executing on multiple cores. A single-threaded event loop is highly concurrent and not parallel at all; that is why it handles ten thousand idle connections beautifully and one CPU-heavy computation terribly.',
+   why:'The right tool depends entirely on which resource you are waiting for. I/O-bound work wants concurrency; CPU-bound work wants parallelism. Applying the wrong one is the most common concurrency mistake there is.',
+   deeper:'<p>The models you will meet: <b>threads</b> (shared memory, OS-scheduled, cheap-ish, dangerous), <b>processes</b> (isolated, safe, heavier to communicate), <b>async/await with an event loop</b> (one thread juggling many waits — excellent for I/O, ruined by a single blocking call), and <b>message passing</b> (goroutines and channels, actors — share by communicating rather than communicating by sharing).</p><p>Know your runtime’s constraint: Python’s GIL and Node’s single loop mean CPU-bound work needs separate processes or workers, not more async. And async is <b>colored</b> — one blocking call inside an async handler stalls every other connection on that loop.</p>',
+   rel:['os','async','races']},
+  {id:'races', term:'Race conditions, locks, and deadlock',
+   plain:'When two threads touch the same thing at once, correctness depends on timing — which you do not control.',
+   gist:'A race condition is any bug whose outcome depends on the interleaving of concurrent operations. The classic is read-modify-write: two threads read the same counter, both add one, one increment vanishes. Locks fix it by making a section exclusive, at the cost of contention, and of new failure modes like deadlock.',
+   why:'Race bugs are non-deterministic: they pass code review, pass tests, pass staging, and appear under production load. Reasoning about them structurally is the only defense, because you cannot reliably reproduce them.',
+   deeper:'<p>The four conditions for <b>deadlock</b> are worth memorizing because breaking any one prevents it: mutual exclusion, hold-and-wait, no preemption, and circular wait. The everyday cure is the last one — always acquire locks in the same global order — plus timeouts so a stuck system fails loudly rather than hanging.</p><p>Prefer strategies that avoid locks entirely: <b>immutability</b> (nothing to race on), <b>confinement</b> (one owner per piece of state, others send messages), <b>atomic operations</b> and compare-and-swap, and pushing coordination into the database where transactions already solve it. And keep critical sections tiny — never do I/O while holding a lock.</p>',
+   rel:['isolation','concurrency','purity']},
+  {id:'async', term:'Async, event loops, and blocking',
+   plain:'One thread can serve thousands of connections if it never waits on anything.',
+   gist:'An event loop keeps a queue of ready work: start an I/O operation, register a callback, move on to other work, and resume when the OS says the data arrived. This is why a single Node or Python-async process handles enormous connection counts — none of them are consuming a thread while idle. The entire model collapses if any handler blocks.',
+   why:'Blocking the loop is the defining bug of async code: one synchronous file read, one CPU-heavy loop, one accidental sync call, and every concurrent request on that process stalls together.',
+   deeper:'<p>Practical rules: never call a blocking API from async code — use the async variant or push it to a worker pool; put CPU-bound work in a separate process; and be careful with unbounded concurrency — firing ten thousand simultaneous requests at a dependency is a self-inflicted denial of service, so bound it with a semaphore.</p><p>Async also complicates errors and observability: stack traces lose their context, an unawaited promise can swallow an exception silently, and cancellation must be explicit. Learn how your runtime reports unhandled rejections before you need it at 3am.</p>',
+   rel:['concurrency','io','failure']},
+  {id:'messaging', term:'Queues, events, and backpressure',
+   plain:'Hand work to a queue instead of doing it inline — and decide what happens when the queue grows.',
+   gist:'A message queue decouples producer from consumer in time: the web request enqueues and returns immediately; a worker processes later. This smooths spikes, isolates failure, and enables independent scaling. It also introduces asynchrony into your correctness model — the work is not done when the user is told it started.',
+   why:'Queues are the standard cure for slow, spiky, or failure-prone work. They are also where “eventually” quietly becomes “never” if nobody watches the depth and the dead-letter queue.',
+   deeper:'<p>Semantics to get right: delivery is <b>at-least-once</b> in practice, so consumers must be idempotent; ordering is only guaranteed within a partition or key, if at all; and every queue needs a <b>dead-letter queue</b> for messages that fail repeatedly, plus an alarm on it — otherwise poison messages either block the queue or vanish.</p><p><b>Backpressure</b> is the part people skip: when consumers cannot keep up, something must slow the producers down. Unbounded queues convert overload into unbounded latency and eventual collapse; bounded queues that reject or shed load fail visibly and recover. Monitor queue <em>depth</em> and <em>age of the oldest message</em>, not just throughput.</p>',
+   rel:['queues','idempotency','observability']},
+  {id:'failure', term:'Designing for failure',
+   plain:'Every remote call will fail eventually. The design question is what happens when it does.',
+   gist:'Distributed systems are failure-normal: dependencies time out, return errors, or — worst of all — get slow. Robust systems assume this and answer it explicitly with timeouts, bounded retries with backoff and jitter, circuit breakers, fallbacks, and graceful degradation. Systems that assume success cascade one dependency’s bad day into a total outage.',
+   why:'Availability is determined far more by failure handling than by uptime of individual parts. Ten services at 99.9% chained naively give you 99%; handled well, the whole can be more available than any part.',
+   deeper:'<p>The toolkit, and the trap in each. <b>Timeouts</b> on every call — an unbounded wait is how thread pools die. <b>Retries</b> only for transient errors, only for idempotent operations, with exponential backoff <em>and jitter</em> — synchronized retries are how a blip becomes a stampede. <b>Circuit breakers</b> stop hammering a dependency that is clearly down and let it recover. <b>Bulkheads</b> keep one dependency’s pool from starving the others.</p><p>Two further ideas: <b>fail fast beats hanging</b> (a quick error is a better user experience and a much better system behavior than a 60-second spinner), and <b>degrade gracefully</b> — serve stale data or hide a non-essential panel rather than returning a 500 for the whole page.</p>',
+   rel:['idempotency','distributed','observability']},
+  {id:'distributed', term:'What distribution really costs',
+   plain:'Crossing a process boundary turns a function call into an unreliable, slow, partial-failure event.',
+   gist:'The fallacies of distributed computing are a list of things everyone assumes and none of which are true: the network is reliable, latency is zero, bandwidth is infinite, the network is secure, topology does not change, there is one administrator, transport cost is zero, the network is homogeneous. Every one of them is a production incident waiting for a deadline.',
+   why:'Distribution buys independent scaling and independent deployment, and charges you in latency, partial failure, debugging difficulty, and data consistency. It is a bill many teams sign without reading.',
+   deeper:'<p><b>Partial failure</b> is the qualitative change: in one process, either the call happened or it did not. Across a network, it may have happened while the response was lost — an ambiguity no amount of error handling removes, only idempotency makes survivable.</p><p>Practical consequences: you cannot have a transaction across services (hence sagas and outboxes); you cannot trust a clock to order events across machines (hence logical clocks and version vectors); and “is it down or just slow?” is genuinely undecidable, which is why every distributed system ultimately relies on timeouts and heartbeats rather than certainty.</p>',
+   rel:['consistency','failure','monolith']},
+  {id:'observability', term:'Logs, metrics, and traces',
+   plain:'If you cannot see what a system is doing, you are not operating it — you are hoping.',
+   gist:'Three complementary signals. Logs are discrete events with context — what happened, to whom, with what identifiers. Metrics are numeric aggregates over time — rates, errors, durations, saturation — and are what alerts are built on. Traces follow one request across every service it touches, showing where the time actually went.',
+   why:'Debugging distributed behavior by reading source code does not work. Observability is what converts “users say it’s slow” into “the third call in this trace takes 900 ms at p99”.',
+   deeper:'<p>Practices that pay for themselves: <b>structured logging</b> (JSON with fields, not sentences you will later regret regexing), a <b>correlation/trace ID</b> propagated through every call and logged everywhere, and the <b>RED</b> metrics for each service — Rate, Errors, Duration — plus saturation for each resource.</p><p>Two disciplines that separate mature teams: <b>alert on symptoms users feel</b> (error rate, latency, queue age) rather than causes (CPU at 80% is not an outage), and remember that <b>logging is not free</b> — a debug log in a hot loop can cost more than the work itself, and logging secrets or personal data is a breach that persists in your log store for the retention period.</p>',
+   rel:['measure','failure','debugging']},
+  {id:'monolith', term:'Monolith, services, and the cost of a boundary',
+   plain:'Services are an organizational tool with a technical price. Pay it deliberately.',
+   gist:'A modular monolith is one deployable with clear internal boundaries: simple to run, easy to change atomically, fast in-process calls. Services split along those boundaries buy independent deploys, independent scaling, and team autonomy — and charge you network latency, partial failure, distributed data, and an operations burden that grows with the count.',
+   why:'The most common expensive architecture mistake of the last decade was distributing a system that was never modular in the first place — converting method calls into network calls without ever fixing the coupling underneath.',
+   deeper:'<p><b>Conway’s Law</b> explains most real service boundaries: systems mirror the communication structure of the organizations that build them. If two services are always deployed together by the same team, they are one service with extra latency; if one team owns twelve services, they own twelve deploy pipelines and on-call surfaces.</p><p>The advice that has aged best: start with a well-structured monolith, enforce module boundaries in code, and extract a service only when there is a concrete reason — different scaling profile, different release cadence, a genuinely separate team, or an isolation requirement. Extraction is far easier from a modular monolith than from a distributed ball of mud.</p>',
+   rel:['layering','distributed','tradeoffs']},
+],
+  ex:[
+  {id:'x-request', title:'Follow one request all the way down', time:'45 min', level:'Hands-on',
+   plain:'Take a single URL apart into DNS, TCP, TLS, and HTTP — with timings for each stage.',
+   steps:'<li>Run <code>dig example.com</code> and note the resolution and the TTL. Then <code>curl -v https://example.com</code> and identify the connection, the TLS handshake, and the request headers in the output.</li><li>Get per-stage numbers: <code>curl -w "dns:%{time_namelookup} connect:%{time_connect} tls:%{time_appconnect} ttfb:%{time_starttransfer} total:%{time_total}\\n" -o /dev/null -s https://example.com</code></li><li>Run it again immediately and see which stages got cheaper (DNS cache, session resumption). Now run it against a server on another continent and compare.</li><li>Finally, add <code>--http1.1</code> and compare against the default. Write down where the time actually goes — it is rarely where people assume.</li>',
+   rel:['network','io','measure']},
+  {id:'x-race', title:'Write a race condition, then close it', time:'45 min', level:'Keystone',
+   plain:'Lose increments in memory, watch the bug vanish under a debugger, then fix it properly.',
+   steps:'<li>Spawn ten threads that each increment a shared counter 100,000 times with no synchronization. Print the total. Run it five times and note that it is wrong and differently wrong each time.</li><li>Add a print or a sleep inside the loop and watch the bug become much harder to reproduce — the reason race bugs survive debugging sessions.</li><li>Fix it three ways: a mutex, an atomic increment, and confinement (each thread counts locally, one merge at the end). Time all three under contention.</li><li>Bonus: create a deadlock with two locks acquired in opposite orders by two threads, then fix it with a consistent global lock ordering.</li>',
+   hint:'<p>If your language has a race detector (Go’s <code>-race</code>, ThreadSanitizer, Java’s jcstress), run the broken version under it. Watching a tool point straight at the unsynchronized access is worth an hour of reading.</p>',
+   rel:['races','concurrency','os']},
+  {id:'x-retry', title:'Cause a retry storm, then survive one', time:'50 min', level:'Keystone',
+   plain:'Build the cascade that takes real systems down, then add the three controls that stop it.',
+   steps:'<li>Run a toy service A that calls service B. Make B slow (2s) and give A no timeout. Load A with 50 concurrent clients and watch A’s pool exhaust — A is now down because B is slow, not broken.</li><li>Add a 500 ms timeout in A plus three immediate retries. Observe B’s load <em>triple</em> exactly when it was already struggling. That is the storm.</li><li>Add exponential backoff with jitter. Then add a circuit breaker that opens after N consecutive failures and half-opens to probe.</li><li>Finally add a fallback (cached or degraded response) and confirm A now stays up and useful while B is entirely down. Write down the four controls — they are the same four in every resilient system.</li>',
+   rel:['failure','distributed','messaging']},
+  {id:'x-trace', title:'Instrument a request end to end', time:'50 min', level:'Hands-on',
+   plain:'Generate a trace ID, thread it through two services, and find where the latency lives.',
+   steps:'<li>Generate a trace ID at the entry point of service A, pass it in a header to service B, and include it in every log line in both.</li><li>Switch both services to structured JSON logs with fields: trace ID, route, duration, status.</li><li>Add timing around each external call and log it. Fire 100 requests with a deliberate slow dependency and compute p50, p95, and p99 from your own logs — not the mean.</li><li>Now answer, using only the logs: which call dominates p99, and is it the same call that dominates p50? The answer is usually no, and that gap is why tail latency needs its own attention.</li>',
+   rel:['observability','amortized','measure']},
+]},
+{
+  numeral:'VI', slug:'correctness', title:'Correctness & Change',
+  desc:'Code is read and modified far more than it is written. This chapter is about keeping a system true while it moves — and about the safety net that lets you move fast without breaking things.',
+  topics:[
+  {id:'testing', term:'What tests are actually for',
+   plain:'Not proving correctness — buying the confidence to change things.',
+   gist:'A test suite’s real product is courage. It lets you refactor, upgrade, delete, and accept unfamiliar code without a knot in your stomach, because a machine will tell you within a minute whether you broke something. Bug-catching is a side effect; the primary value is that change stops being frightening.',
+   why:'When large volumes of code can be produced quickly, the constraint moves to verification. Tests are the mechanism by which you can accept code you did not write line by line — they encode what must remain true regardless of who or what wrote it.',
+   deeper:'<p>A test is worth writing when it is <b>fast</b>, <b>deterministic</b>, and <b>fails for exactly one reason</b>. Flaky tests are worse than no tests: they train the team to ignore red, which destroys the signal for everything else. Delete or fix them the day they appear.</p><p>Coverage is a weak proxy — it measures lines executed, not properties verified, and 100% coverage with no assertions is possible. Better questions: if I broke this rule, would a test fail? Can I name the behavior each test protects? A useful discipline is <b>mutation testing</b>, which changes your code deliberately and checks that a test notices.</p>',
+   rel:['pyramid','property','refactoring']},
+  {id:'pyramid', term:'The testing pyramid',
+   plain:'Many fast unit tests, fewer integration tests, a handful of end-to-end tests.',
+   gist:'Unit tests check one piece in isolation: milliseconds, precise failures, but they can all pass while the assembled system is broken. End-to-end tests exercise the real thing through the real interface: maximum confidence, but slow, flaky, and vague about what failed. Integration tests sit between, checking that two real components agree.',
+   why:'The shape matters because feedback speed determines how often you run it. A suite that takes forty minutes is a suite people skip, and a skipped suite provides zero protection regardless of how thorough it is.',
+   deeper:'<p>Rough targets: unit tests in milliseconds and run on save; integration tests in seconds against a real database in a container (not a mock — the value is checking your assumptions about the real thing); a small number of end-to-end tests covering only critical user journeys, run in CI.</p><p>The complementary idea is the <b>testing trophy</b>, which argues for weighting integration tests most heavily, because that is where realistic bugs live in web applications. Both models agree on the point that matters: put your tests where the risk is, not uniformly, and never let the slow layer become the thick one.</p>',
+   rel:['testing','mocks','cicd']},
+  {id:'mocks', term:'Test doubles and the mocking trap',
+   plain:'Fake collaborators make tests fast and isolated — and can make them prove nothing.',
+   gist:'A stub returns canned data; a mock asserts that an interaction happened; a fake is a working lightweight implementation. All three replace something real. The trap is mocking so heavily that your test verifies your assumptions about a dependency instead of the dependency’s behavior — passing perfectly while production breaks.',
+   why:'Over-mocked tests are the classic reason a suite is green during an outage. They also cement implementation details, so every refactor breaks tests even when behavior is unchanged.',
+   deeper:'<p>Guidance that holds up: mock at <b>architectural boundaries</b> you own (a <code>PaymentGateway</code> interface), not at arbitrary internal seams. Prefer <b>fakes over mocks</b> — an in-memory repository is more honest and less brittle than five <code>expect(...).toHaveBeenCalledWith(...)</code> assertions. And test <b>behavior, not calls</b>: asserting that a method was invoked is asserting your implementation, not your requirement.</p><p>For third parties, the strongest technique is <b>contract testing</b>: record real responses and replay them, and periodically verify the recording still matches reality. That catches the failure mocks are blind to — the provider changed.</p>',
+   rel:['pyramid','contracts','purity']},
+  {id:'property', term:'Property-based testing and fuzzing',
+   plain:'Instead of examples you thought of, state a rule and let a machine attack it.',
+   gist:'Example tests check the cases you imagined — and bugs live in the cases you did not. Property testing states an invariant (“encoding then decoding returns the original”, “the result is always sorted”, “the total never goes negative”) and generates hundreds of inputs trying to break it, then shrinks any failure to a minimal counterexample.',
+   why:'Properties are specifications, and specifications are exactly the artifact that stays valuable when implementations are cheap. One good property can outperform fifty hand-written examples.',
+   deeper:'<p>Properties that transfer to almost any codebase: <b>round-trip</b> (parse ∘ serialize = identity), <b>invariance</b> (output always satisfies a constraint), <b>idempotence</b> (applying twice equals once), <b>oracle</b> (matches a slow obviously-correct implementation), and <b>metamorphic</b> (adding an element never decreases the count).</p><p><b>Fuzzing</b> is the security-flavored cousin: throw malformed and hostile input at a parser or endpoint and look for crashes, hangs, and memory errors. Both techniques share the mindset that matters most in review — stop asking “does it work?” and start asking “what input would break this?”</p>',
+   rel:['invariants','testing','security']},
+  {id:'static', term:'Types, linters, and cheap proofs',
+   plain:'Every bug a tool can catch is a bug no human has to.',
+   gist:'Static analysis inspects code without running it. A type checker proves whole categories of errors impossible; a linter catches known-bad patterns; a formatter ends style arguments permanently; a dependency scanner flags known vulnerabilities. All of them are feedback that arrives in seconds, applies to every line, and never gets tired.',
+   why:'Automated checks scale to any volume of code and any author. If review capacity is the bottleneck, everything a machine can verify should be verified by a machine before a human ever looks.',
+   deeper:'<p>Configure them to be <b>enforced, not advisory</b>: run in CI, fail the build, and format automatically on commit. A warning nobody must fix is a warning nobody fixes. Set the strictness high in new code (strict null checks, no implicit <code>any</code>) even if legacy areas are exempted by path.</p><p>Beyond types, cheap wins include null-safety analysis, exhaustiveness checking on unions (so adding a case forces every switch to be updated — one of the great underrated features of sum types), dead-code detection, and secret scanning in the commit hook. Each removes a category of review comment forever.</p>',
+   rel:['types','cicd','review']},
+  {id:'debugging', term:'Debugging as a discipline',
+   plain:'Not guessing and changing things — forming a hypothesis and running an experiment.',
+   gist:'Effective debugging is the scientific method under deadline: reproduce reliably, observe what actually happens, form a hypothesis that explains all of the evidence, design the smallest experiment that could refute it, and repeat. The frequent failure is skipping straight to changing code, which sometimes hides the symptom and never explains it.',
+   why:'It is the skill that transfers completely across languages, stacks, and eras — and the one you need most when reading unfamiliar code, because you cannot rely on remembering what it was supposed to do.',
+   deeper:'<p>Techniques worth having ready: <b>reduce to a minimal reproduction</b> (deleting half the input repeatedly is astonishingly effective); <b>bisect</b> in time with <code>git bisect</code> to find the introducing commit in log₂ n steps; <b>bisect in space</b> by disabling half the system; <b>read the error message completely</b> — the full stack trace, the caused-by chain, the line number; and <b>question your assumptions in order</b>, starting with the one you are most sure of, because that is where the bug is.</p><p>Finish properly: once found, ask why the tests did not catch it, and add the test that would have. A bug that recurs is a process failure, not bad luck.</p>',
+   rel:['callstack','observability','testing']},
+  {id:'refactoring', term:'Refactoring',
+   plain:'Changing the structure without changing the behavior — in small, verified steps.',
+   gist:'Refactoring is a specific discipline, not a synonym for rewriting: behavior stays identical and the tests stay green throughout, while the design improves. The value is that it can be done continuously, in minutes, as part of normal work — which is the only way a codebase stays habitable over years.',
+   why:'Structure is exactly what accumulates value or debt over time. And when large chunks of code arrive quickly, restructuring them into something coherent becomes a primary activity rather than an occasional cleanup.',
+   deeper:'<p>The rule is <b>never refactor and change behavior in the same commit</b>. Mixed commits are unreviewable and cannot be reverted cleanly. Make the change easy (refactor), then make the easy change (feature) — two commits, in that order.</p><p>High-value moves, mostly mechanical: extract a function or a variable to name a concept, inline something that hides nothing, replace conditionals with polymorphism or a lookup table, introduce a parameter object for arguments that always travel together, and split a class along the lines of which fields each method actually touches. If your editor can do it automatically, it is safe; if not, lean on tests.</p>',
+   rel:['debt','testing','decomposition']},
+  {id:'vcs', term:'Version control as a thinking tool',
+   plain:'Git is not a backup. It is a queryable history of why the code is the way it is.',
+   gist:'A well-kept history answers questions nothing else can: when did this behavior change, what else changed with it, what was the reasoning, and which commit introduced the bug. That value comes entirely from discipline — small commits that do one thing, messages that explain why rather than what, and branches that live for days rather than months.',
+   why:'History is the only durable record of intent. In a codebase where much of the text was generated, the commit message explaining <em>why</em> is often the sole surviving human context.',
+   deeper:'<p>Tools that repay learning properly: <code>git bisect</code> (binary search for the introducing commit — heroic on a long history), <code>git log -S"someString"</code> (find the commit that added or removed a string), <code>git blame</code> followed by reading that commit’s full message and diff, and <code>git revert</code> for undoing safely in shared history.</p><p>On workflow: long-lived branches are a merge tax that compounds daily; small, frequent, integrated changes are cheaper and safer, which is the actual argument behind trunk-based development and behind feature flags as a substitute for branching.</p>',
+   rel:['debugging','cicd','review']},
+  {id:'cicd', term:'CI/CD and safe deployment',
+   plain:'Automate the path from commit to production, then make failing safe rather than rare.',
+   gist:'Continuous integration means every change is merged and verified frequently — build, tests, linters, security scan — so integration problems appear in minutes instead of at the end of a quarter. Continuous delivery means the path to production is automated and boring. Together they shift the goal from “never break” to “detect and recover in minutes”.',
+   why:'Deployment risk is a design property, not a matter of care. Teams that deploy ten times a day are not braver — they made each deploy small, observable, and reversible.',
+   deeper:'<p>The safety mechanisms, in order of usefulness: <b>reversibility</b> (a rollback that takes one command and no thought), <b>gradual exposure</b> (canary to 1% of traffic, watch the metrics, then proceed), <b>feature flags</b> (decouple deploy from release, so shipping code and enabling behavior are separate decisions), and <b>automated verification</b> after deploy — smoke tests plus alerting on error rate and latency.</p><p>Two rules that prevent most bad nights: deploys must be <b>backward compatible</b> with the previous version (see expand/contract migrations), and the <b>same artifact</b> is promoted through environments — never rebuilt per environment, or you are testing something other than what you ship.</p>',
+   rel:['migrations','stateless','observability']},
+  {id:'debt', term:'Technical debt',
+   plain:'A deliberate loan against future speed. The trouble starts when nobody records the borrowing.',
+   gist:'The metaphor is precise and often misused: debt is a conscious decision to ship something imperfect now and pay interest — slower changes, more bugs — until it is repaid. Code that is simply bad was never a loan; it is a mess. The distinction matters because deliberate debt can be tracked, budgeted, and repaid, while a mess just spreads.',
+   why:'Interest compounds fastest in structure and data — a bad schema or a wrong boundary taxes every subsequent change, including the ones written for you in seconds.',
+   deeper:'<p>A useful taxonomy: <b>deliberate and prudent</b> (“ship the manual process, automate after launch” — fine, write it down), <b>deliberate and reckless</b> (“no time for design”), <b>accidental and prudent</b> (“now we understand the domain better” — this is normal and healthy), and <b>accidental and reckless</b> (nobody knew better).</p><p>Repayment works best <b>opportunistically</b>: improve the area you are already working in, in the commit before your feature. Large dedicated cleanup projects rarely get funded, rarely finish, and touch code nobody was going to change anyway. And prioritize by <b>rate of change</b> — messy code that nobody edits costs nothing.</p>',
+   rel:['refactoring','tradeoffs','change']},
+  {id:'security', term:'Security by construction',
+   plain:'Assume every input is hostile and every component will eventually be reachable by someone who is.',
+   gist:'Most breaches are not exotic. They are injection through unvalidated input, broken authentication or authorization, secrets committed to a repository, unpatched dependencies, and data exposed by a misconfigured default. The defenses are structural: validate at the boundary, use parameterized queries, check authorization on every request at the server, and keep secrets out of code.',
+   why:'Security is the area where plausible-looking code is most dangerous, because vulnerable code runs correctly on every input except the malicious one — and no test you would think to write covers it.',
+   deeper:'<p>The load-bearing principles: <b>never build queries or commands by string concatenation</b> — parameterize, always; <b>authenticate and authorize on the server for every request</b> (a hidden UI button is not access control, and an object ID in a URL must be checked against the caller); <b>least privilege</b> for every credential, service, and token; <b>encrypt in transit and at rest</b>; and <b>never invent your own crypto or session handling</b> — use the vetted library.</p><p>Process matters as much: keep dependencies patched (most real incidents involve a known CVE), scan for committed secrets, rotate credentials, log security-relevant events, and log nothing sensitive. Then read the OWASP Top Ten once a year — it is short and it is where the attacks actually are.</p>',
+   rel:['property','review','contracts']},
+  {id:'review', term:'Code review',
+   plain:'The main channel for spreading understanding — and the last gate before something becomes everyone’s problem.',
+   gist:'Review catches defects, but its larger effects are shared context, consistent design, and mentoring in both directions. Good review focuses on what tools cannot check: is this the right approach, is the boundary sound, are the failure modes handled, will the next person understand it? Formatting and style should already have been settled by machines.',
+   why:'The volume of code needing review is rising while the number of people able to review it is not. Reviewing for design and risk rather than syntax is the only version of this that scales.',
+   deeper:'<p>Practices supported by the research: keep changes <b>small</b> (defect detection collapses beyond a few hundred lines), review <b>promptly</b> (a stale branch costs more than a fast review), and <b>ask questions rather than issue verdicts</b> — “what happens if this list is empty?” teaches; “this is wrong” does not.</p><p>A reviewer’s checklist worth internalizing: what are the failure modes, what happens under concurrency, what happens on the empty and the enormous input, is this boundary in the right place, what is not tested, and could this have been simpler? That list is also exactly the right lens for reviewing code you did not write by hand.</p>',
+   rel:['llmreview','security','simplicity']},
+],
+  ex:[
+  {id:'x-bisect', title:'Find a bug you planted twenty commits ago', time:'40 min', level:'Hands-on',
+   plain:'Learn git bisect on a bug you already know the answer to, so you can use it when you don’t.',
+   steps:'<li>In a scratch repo, make 25 small commits. Somewhere in the middle, introduce a subtle bug — an off-by-one, or a flipped comparison.</li><li>Write a one-line test script that exits 0 when the code is good and 1 when broken.</li><li>Run <code>git bisect start</code>, mark the ends, and then <code>git bisect run ./test.sh</code>. Watch it find the exact commit in about five steps.</li><li>Now try <code>git log -S</code> on the changed string, and <code>git blame</code> on the line. Three tools, three angles — all far faster than reading.</li>',
+   rel:['vcs','debugging','testing']},
+  {id:'x-property', title:'Let a property test surprise you', time:'45 min', level:'Keystone',
+   plain:'State an invariant about code you trust, and watch a generator find the input you never considered.',
+   steps:'<li>Install a property-testing library (Hypothesis, fast-check, jqwik, proptest — every ecosystem has one).</li><li>Pick a function you believe is correct: a parser, a date range calculation, a price or discount rule, a string sanitizer.</li><li>Write one property, not examples — round-trip, or “output always satisfies X”, or “matches this obviously-correct slow version”. Run a thousand cases.</li><li>When it fails — and it usually does — note that the framework shrinks the input to a minimal counterexample. Add that case as a permanent example test, fix the bug, and keep the property.</li>',
+   hint:'<p>Empty strings, unicode, leap days, daylight-saving transitions, negative zero and the maximum integer are where the bodies are buried. A generator finds these in seconds; a human writing test cases essentially never does.</p>',
+   rel:['property','invariants','testing']},
+  {id:'x-characterize', title:'Add a test to code that has none', time:'50 min', level:'Keystone',
+   plain:'The legacy-code manoeuvre: pin current behavior first, then change it safely.',
+   steps:'<li>Find a gnarly function with no tests and dependencies baked in — file access, a clock, a network call, a global.</li><li>Do not fix it yet. Write <b>characterization tests</b> that assert whatever it currently does, including behavior you think is wrong. You are pinning reality, not correctness.</li><li>Introduce one seam: pass the clock or the repository in as a parameter, or extract the pure decision logic out of the I/O. Keep the tests green.</li><li>Now change the behavior you believe is wrong, and watch exactly one test fail. Update it deliberately. That is the whole loop for working in code you do not trust.</li>',
+   rel:['refactoring','mocks','purity']},
+  {id:'x-injection', title:'Exploit your own endpoint', time:'50 min', level:'Hands-on',
+   plain:'Write the vulnerability, exploit it locally, then close it — the lesson does not stick from reading.',
+   steps:'<li>Build a tiny local app with a login form whose SQL is assembled by string concatenation. Log in as admin with <code>\' OR \'1\'=\'1</code> and confirm you are through.</li><li>Fix it with a parameterized query. Try the same input and watch it become an ordinary failed login.</li><li>Repeat for two more classes: render unescaped user input into HTML and pop an alert (XSS), then add an endpoint that fetches a record by ID without checking ownership and read someone else’s data (IDOR — the most common real-world API flaw).</li><li>Finally, run a dependency audit (<code>npm audit</code>, <code>pip-audit</code>, <code>govulncheck</code>) on a real project of yours and read what comes back.</li>',
+   hint:'<p>Do this only against something you built, running locally. The point is calibration: these take one line to introduce, one line to prevent, and are trivially found by anyone scanning the internet.</p>',
+   rel:['security','property','review']},
+]},
+{
+  numeral:'VII', slug:'judgment', title:'Judgment',
+  desc:'The senior skill: choosing well, justifying the choice, and living with it. This is where the previous six chapters convert into leverage — and where the work is heading.',
+  topics:[
+  {id:'requirements', term:'Solving the right problem',
+   plain:'The most expensive defect is a perfectly built thing nobody needed.',
+   gist:'Requests arrive as solutions (“add a CSV export”) and hide the actual need (“I reconcile these numbers every Monday and it takes two hours”). The job is to work backwards to the need, because the need usually admits several answers, and the one the requester named is rarely the cheapest or the best.',
+   why:'Implementation speed increases the cost of building the wrong thing, because you now build it faster and in greater quantity. Problem selection is the highest-leverage decision in the whole process.',
+   deeper:'<p>Questions that consistently earn their time: <b>who</b> is this for and what do they do today instead? <b>How often</b> does this happen, and what does it cost when it goes wrong? <b>What does done look like</b> — how would we know it worked? <b>What is explicitly out of scope?</b> And the one that saves the most effort: <b>what happens if we do nothing?</b></p><p>Specify the edges as carefully as the happy path. Most disputes about “it does not work” are disputes about the unstated case: empty results, duplicates, permissions, partial failure, what the user sees while it is loading. Write those down before writing code — they are the specification, and everyone including a model will implement what you actually specified.</p>',
+   rel:['spec','tradeoffs','estimation']},
+  {id:'tradeoffs', term:'Trade-offs and the absence of “best”',
+   plain:'Every choice buys something with something else. Seniority is naming the currency.',
+   gist:'There is no best database, language, or architecture — only fits for a set of constraints. Speed against flexibility, consistency against availability, simplicity against capability, build against buy, now against later. The mark of experience is not knowing the right answer but stating precisely what each option costs and under what conditions it wins.',
+   why:'A model will give you a confident recommendation for any question you ask. Knowing which constraints actually apply to your situation — team size, load, deadline, existing systems, who maintains it — is what makes a recommendation usable or dangerous.',
+   deeper:'<p>A practical format for any real decision: list the options (including doing nothing), state the two or three criteria that actually matter <em>here</em>, note what each option costs and what it makes hard later, and record the conditions under which you would revisit. That last field is what separates a decision from an opinion.</p><p>Watch for the standard distortions: <b>novelty bias</b> (choosing what is interesting to build), <b>résumé-driven development</b>, <b>sunk cost</b> (defending a choice because of its price rather than its future), and <b>optimizing for a scale you do not have</b> — the most expensive of all, because it charges you complexity every day for a problem that may never arrive.</p>',
+   rel:['adr','change','simplicity']},
+  {id:'measure', term:'Measure, don’t guess',
+   plain:'Programmer intuition about performance is famously, reliably wrong.',
+   gist:'Optimization without measurement is superstition. Profile first, find where the time or memory actually goes, fix the largest contributor, and measure again. The bottleneck is nearly always somewhere nobody predicted — an accidental query in a loop, a serialization step, a lock, a cold cache — and the code people “know” is slow is usually irrelevant.',
+   why:'Confident, plausible performance advice is abundant and cheap. Evidence about your system under your load is scarce and decisive.',
+   deeper:'<p><b>Amdahl’s Law</b> bounds the payoff: if a part takes 5% of total time, making it infinitely fast buys you 5%. So always find the dominant term before touching anything.</p><p>Benchmarking honestly is harder than it looks: warm up (JIT, caches, connection pools), use realistic data sizes and distributions, measure percentiles rather than means, run enough iterations to see variance, and change one thing at a time. And measure in the environment that matters — laptop numbers rarely predict production, where contention, cold caches, and network latency dominate.</p>',
+   rel:['io','amortized','observability']},
+  {id:'estimation', term:'Estimation and scope',
+   plain:'You cannot predict duration well. You can decompose, sequence, and communicate uncertainty.',
+   gist:'Estimates are wrong because software work involves discovery — you learn what the task really is by doing it. The useful skills are breaking work into pieces small enough to reason about (a piece you cannot estimate is a piece you do not understand yet), identifying the unknowns early, and giving ranges with the assumptions attached rather than a false single number.',
+   why:'Faster implementation does not shrink the unpredictable parts — integration, edge cases, review, migration, and the discovery of what was actually wanted. Those are now a larger share of the work, not a smaller one.',
+   deeper:'<p>Techniques that genuinely help: <b>decompose until each piece is under a day</b>; <b>timebox a spike</b> to answer the riskiest unknown before estimating the rest; use <b>reference-class forecasting</b> (how long did the last three similar things take, including the parts you forgot?); and quote a <b>range</b> with the assumption that changes it.</p><p>Two chronic biases: the <b>planning fallacy</b> (we estimate the happy path and omit review, deploy, docs, and rework), and forgetting that estimates are not commitments. The most valuable communication is not the number — it is the early warning when the assumptions behind it stop holding.</p>',
+   rel:['requirements','tradeoffs','durable']},
+  {id:'reading', term:'Reading code',
+   plain:'The dominant activity of the job, and the one almost nobody practises deliberately.',
+   gist:'Engineers read far more code than they write, and the ratio is climbing. Reading well is a technique, not osmosis: start from an entry point and follow one path, ignore everything not on it, use the debugger and the tests as documentation, sketch the data flow, and take notes. Attempting to understand everything at once is how people bounce off large codebases.',
+   why:'When code arrives faster than any person can write it, comprehension becomes the bottleneck. The ability to read an unfamiliar system quickly and judge whether it is sound is now the core competency.',
+   deeper:'<p>Approaches that work on a large unfamiliar codebase: <b>follow one request end to end</b> with a debugger and breakpoints; <b>read the tests first</b> — they state intended behavior more honestly than comments; <b>read the data model</b>, which constrains everything else; <b>use the history</b> (<code>git log</code> on a file tells you what kept changing and why); and <b>change something small</b> and see what breaks — the fastest way to map the real dependencies.</p><p>Reading is also a design education: every codebase you read teaches you a pattern to reuse or to avoid, and it is one of the few ways to build taste without waiting for years of your own mistakes.</p>',
+   rel:['debugging','llmreview','naming']},
+  {id:'adr', term:'Architecture decision records',
+   plain:'A short written record of what you chose, what you rejected, and why.',
+   gist:'An ADR is one page per significant decision: the context and constraints at the time, the options considered, the choice, and the consequences accepted. It takes twenty minutes to write and answers, years later, the question that otherwise costs days — “why on earth is it like this?”',
+   why:'Rationale is the context that no amount of code reading recovers, and the artifact that keeps a system understandable as the people and the code around it both turn over.',
+   deeper:'<p>Keep them in the repository next to the code, numbered and immutable: when a decision changes, write a new ADR that supersedes the old one rather than editing history. The rejected options are frequently the most valuable section — they stop the team from relitigating the same debate every eighteen months.</p><p>Reserve them for decisions that are expensive to reverse: data model, service boundaries, a core vendor, an auth model, a language or runtime. Do not write one for a library choice inside a single module. A good test: would a new senior engineer be tempted to change this without knowing what we knew?</p>',
+   rel:['tradeoffs','change','spec']},
+  {id:'llmreview', term:'Reviewing machine-written code',
+   plain:'It compiles, it reads well, the tests pass, and it may still be wrong in a way you must catch.',
+   gist:'Generated code has a distinctive risk profile: fluent, idiomatic, confident, and occasionally subtly wrong. It tends to handle the happy path, invent plausible APIs, ignore concurrency and failure modes, and reproduce the average of its training data — which is not the same as the right answer for your system. Fluency is not evidence of correctness.',
+   why:'This is the concrete skill the rest of the guide exists to support. Every concept in chapters I to VI is a lens for reviewing code whose author cannot explain their reasoning to you.',
+   deeper:'<p>A working checklist, drawn from the earlier chapters. <b>Contract</b>: does it match the interface you specified, including errors and edge cases? <b>Boundaries</b>: is validation at the edge and are invariants enforced where they cannot be bypassed? <b>Concurrency</b>: does it read-modify-write, share mutable state, or assume a call happens once? <b>Failure</b>: are there timeouts, are retries safe, what happens if the dependency is slow rather than down? <b>Data</b>: does it fire a query per iteration, does it match the schema, is the migration reversible? <b>Security</b>: string-concatenated queries, missing authorization, secrets, unescaped output. <b>Fit</b>: does it duplicate something that exists, and does it belong in this module at all?</p><p>The habit that matters most: <b>require a reason, not an output</b>. If you cannot explain why the code is correct, you cannot own it — and you will own it, because your name is on the commit.</p>',
+   rel:['review','contracts','security']},
+  {id:'spec', term:'Specification as the durable artifact',
+   plain:'When implementations are cheap, the precise statement of intent becomes the valuable thing.',
+   gist:'The scarce asset shifts from code to unambiguous intent: the interface, the invariants, the properties, the tests, the acceptance criteria, the decision records. These are what determine whether an implementation — by anyone or anything — is correct, and they survive rewrites, refactors, language changes, and model upgrades.',
+   why:'This is the strategic argument of the whole guide. Foundations are what let you write specifications precise enough to be checkable, and architecture is what makes an implementation swappable behind them.',
+   deeper:'<p>In practice, a good specification is layered: <b>types</b> that make illegal states unrepresentable, <b>contracts</b> stating pre- and postconditions, <b>properties</b> a machine can attack with generated input, <b>examples</b> for the cases you care about by name, and <b>ADRs</b> for the reasoning that none of the above captures.</p><p>The workflow this suggests: specify, generate or write, then verify against the specification rather than by reading every line. The verification step is not optional — it is the part that makes the speed safe, and it is the part with your judgment in it.</p>',
+   rel:['contracts','property','invariants']},
+  {id:'simplicity', term:'Simplicity as a discipline',
+   plain:'Simple is not the same as easy — and simple is the one that keeps paying.',
+   gist:'Rich Hickey’s distinction: <em>easy</em> means familiar and near at hand; <em>simple</em> means not braided together — one concept, one responsibility, few interconnections. A framework can be easy and deeply complex; a plain function can be unfamiliar and utterly simple. Complexity is what accumulates until a system resists all change.',
+   why:'Complexity is now trivially cheap to add and as expensive as ever to remove. The pressure runs entirely in one direction, so deliberate restraint is the counterweight.',
+   deeper:'<p>Ousterhout’s framing is complementary: complexity is anything that makes a system hard to understand or modify, and it accumulates <b>incrementally</b> — no single change looks unreasonable, which is exactly why it wins. His counter-move is designing <b>deep modules</b>: a simple interface hiding substantial functionality, as opposed to shallow modules whose interfaces are nearly as complicated as their contents.</p><p>Practical expressions of the same idea: fewer concepts over more configurability, one obvious way over three flexible ways, deleting code as a legitimate accomplishment, and being suspicious of any abstraction whose explanation takes longer than the thing it abstracts.</p>',
+   rel:['dry','change','tradeoffs']},
+  {id:'secondorder', term:'Second-order effects',
+   plain:'Ask what happens next — and what happens after that.',
+   gist:'Every technical decision has consequences beyond its intent. Add a cache and you have created a consistency problem and an on-call surface. Split a service and you have created a deploy dependency and a team boundary. Add a metric and people will optimize for it. Systems thinking is the habit of asking what your change makes easy, hard, and inevitable.',
+   why:'The first-order answer is the easy part and increasingly automated. The second-order consequences — on operations, on the people, on what becomes possible next — are where engineering judgment actually lives.',
+   deeper:'<p>Patterns worth recognizing: <b>Conway’s Law</b> (architecture mirrors organization, so a boundary between teams becomes a boundary in the system whether you designed one or not); <b>Goodhart’s Law</b> (a measure that becomes a target stops measuring — see any team judged on ticket counts or coverage percentage); and <b>feedback loops</b>, where the slow deploy causes bigger batches which cause riskier deploys which cause more process which causes slower deploys.</p><p>Also Chesterton’s Fence: before removing something that appears pointless, find out why it is there. In old systems, the strange code is often load-bearing — an incident from before your time, encoded.</p>',
+   rel:['monolith','debt','tradeoffs']},
+  {id:'durable', term:'What compounds',
+   plain:'Some knowledge expires in eighteen months; some has been true for fifty years. Invest accordingly.',
+   gist:'Framework APIs, tool syntax, and vendor specifics decay fast and are cheap to look up. Data modelling, concurrency, distributed failure, abstraction, debugging method, and communication compound over a whole career — and each new technology is easier to learn because you already have them. This guide is a map of the second category.',
+   why:'The half-life of tools keeps shortening while the half-life of fundamentals stays effectively infinite. That gap is the single best argument for how to spend your learning time.',
+   deeper:'<p>What has actually compounded for practitioners over decades: understanding how machines and networks behave; modelling data and domains; reasoning about concurrency and failure; decomposing systems; debugging systematically; and writing and speaking clearly enough that other people can act on your reasoning.</p><p>The practical implication is not to ignore tools — you must be productive today — but to learn each new one by asking which old idea it is an instance of. A queue is a queue, a cache is a cache, an index is a B-tree, a hook is a callback. People with foundations learn new tools in days; people with only tools start over every cycle.</p>',
+   rel:['spec','reading','simplicity']},
+],
+  ex:[
+  {id:'x-adr', title:'Write three ADRs after the fact', time:'45 min', level:'Hands-on',
+   plain:'Reconstruct decisions you already made, and discover which ones you cannot justify.',
+   steps:'<li>Pick three consequential decisions in a system you work on — the database, a service boundary, an auth approach, a queue.</li><li>For each, write one page: context and constraints at the time, options considered, decision, consequences accepted, and what would make you revisit.</li><li>Note where you struggle. A decision you cannot reconstruct a rationale for is either inherited or accidental — both worth knowing about.</li><li>Commit them to the repo as <code>docs/adr/0001-*.md</code>. Then write the next one <em>before</em> the decision rather than after, and notice how the writing changes the decision.</li>',
+   rel:['adr','tradeoffs','requirements']},
+  {id:'x-design-hour', title:'A system design in one hour', time:'60 min', level:'Keystone',
+   plain:'Design something real end to end, on paper, defending every choice with a constraint.',
+   steps:'<li>Pick a concrete problem: a URL shortener, a ticket booking system, a notification service, an activity feed. Write the requirements and non-requirements first, including scale and consistency needs.</li><li>Sketch the API boundary, then the data model, then the components. Do the arithmetic: requests per second, storage per year, read/write ratio. Numbers change designs.</li><li>Now attack it. Where is the single point of failure? What happens at ten times the load? Which operation is not idempotent? Where does data become inconsistent? What is the p99 path?</li><li>Write the one page you would give to someone implementing it — and notice that this page, not the code, is the actual design work.</li>',
+   hint:'<p>Do this out loud or in writing, never just in your head — the gaps only become visible when you have to state the thing precisely. Repeat monthly with a different problem; this is the single most transferable exercise in the guide.</p>',
+   rel:['spec','tradeoffs','distributed']},
+  {id:'x-adversarial', title:'Adversarially review generated code', time:'50 min', level:'Keystone',
+   plain:'Run the chapter VII checklist against a module you did not write by hand, and count what you find.',
+   steps:'<li>Have a non-trivial module generated: something with I/O, concurrency, and persistence — a job runner that polls a queue and updates records, say. Do not specify carefully; use a normal casual prompt.</li><li>Review it against the checklist in “Reviewing machine-written code”, one pass per category: contract, boundaries, concurrency, failure, data, security, fit.</li><li>Write down every issue with the concept it violates — “read-modify-write, no locking (isolation)”, “no timeout on the HTTP call (failure)”, “query inside the loop (io)”.</li><li>Now redo it: write a precise contract and the invariants first, generate again, and re-run the review. Compare the two defect counts. That difference is the value of specification, measured.</li>',
+   rel:['llmreview','spec','review']},
+  {id:'x-profile', title:'Find the real five percent', time:'45 min', level:'Hands-on',
+   plain:'Predict the bottleneck, profile it, and be wrong — the lesson that makes you measure forever.',
+   steps:'<li>Take a slow script or endpoint of your own. <em>Before</em> profiling, write down where you believe the time goes, with percentages. Seal it.</li><li>Profile it properly (a sampling profiler, or your language’s built-in). Find the top three contributors by total time, not by call count.</li><li>Compare with your prediction. Then fix only the dominant one, and re-measure — including whether the bottleneck simply moved.</li><li>Apply Amdahl: compute the maximum possible gain from the thing you were <em>about</em> to optimize. Keep that number as a permanent argument against guessing.</li>',
+   rel:['measure','io','amortized']},
+  {id:'x-capstone', title:'Capstone: build one small system properly', time:'multi-day', level:'Capstone',
+   plain:'Everything in this guide, applied once, to something small enough to actually finish.',
+   steps:'<li><b>Specify</b>: one page of requirements and non-requirements, the API contract, and the invariants that must always hold.</li><li><b>Model</b>: the data model first, with constraints in the database, not only in code. Write the ADR for the choice.</li><li><b>Build</b>: functional core with pure logic, thin imperative shell, dependencies pointing inward. Generate freely inside the boundaries you defined; review everything against the checklist.</li><li><b>Prove</b>: unit tests for the logic, integration tests against a real database, one property test per invariant, and one end-to-end test of the critical path.</li><li><b>Operate</b>: structured logs with a trace ID, RED metrics, timeouts and retries on every remote call, a health endpoint, and a rollback you have actually rehearsed.</li><li><b>Reflect</b>: load it until something breaks, then write the incident report to yourself. What broke first is what you under-designed, and that is worth more than the working system.</li>',
+   hint:'<p>Keep it genuinely small — a link shortener, a webhook receiver, an expenses tracker. The value is in doing every step properly once, not in the size of the artifact. Then do it again in six months and watch which steps have become automatic.</p>',
+   rel:['spec','x-design-hour','durable']},
+]},
+
+];
+
+/* ---------- state ---------- */
+const LS_KEY='swefg-learned-v1', XS_KEY='swefg-workbench-v1';
+let learned=new Set(JSON.parse(localStorage.getItem(LS_KEY)||'[]'));
+let done=new Set(JSON.parse(localStorage.getItem(XS_KEY)||'[]'));
+let current=0, query='';
+const ALL=GUIDE.flatMap((c,ci)=>c.topics.map((t,ti)=>({...t,ci,ti})));
+const ALLX=GUIDE.flatMap((c,ci)=>(c.ex||[]).map((x,xi)=>({...x,ci,xi,isEx:true})));
+const byId=Object.fromEntries(ALL.map(t=>[t.id,t]));
+ALLX.forEach(x=>{byId[x.id]=x});
+const total=ALL.length, totalx=ALLX.length;
+
+const nav=document.getElementById('nav');
+const main=document.getElementById('main');
+const searchEl=document.getElementById('search');
+
+function save(){
+  localStorage.setItem(LS_KEY,JSON.stringify([...learned]));
+  localStorage.setItem(XS_KEY,JSON.stringify([...done]));
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+function renderNav(){
+  nav.innerHTML=GUIDE.map((c,i)=>{
+    const d=c.topics.filter(t=>learned.has(t.id)).length;
+    return `<button data-ch="${i}" class="${i===current&&!query?'active':''}">
+      <span class="numeral">${c.numeral}</span>
+      <span class="t">${c.title}</span>
+      <span class="n ${d===c.topics.length?'done':''}">${d}/${c.topics.length}</span>
+    </button>`;
+  }).join('');
+  const n=learned.size;
+  document.getElementById('ptext').textContent=`${n} / ${total}`;
+  document.getElementById('pbar').style.width=(n/total*100)+'%';
+  const nx=done.size;
+  document.getElementById('xtext').textContent=`${nx} / ${totalx}`;
+  document.getElementById('xbar').style.width=(totalx?nx/totalx*100:0)+'%';
+}
+
+function cardHTML(t,num){
+  const open=t._open?'open':'', l=learned.has(t.id)?'learned':'';
+  const rel=(t.rel||[]).filter(r=>byId[r]);
+  return `<article class="card ${open} ${l}" id="card-${t.id}">
+    <button class="card-head" data-toggle="${t.id}" aria-expanded="${!!t._open}">
+      <span class="spec-id">${num}</span>
+      <span class="headmain">
+        <div class="term">${t.term}</div>
+        <div class="plain">${t.plain}</div>
+      </span>
+      <span class="chev">▸</span>
+    </button>
+    <div class="card-body">
+      <p class="gist">${t.gist}</p>
+      ${t.why?`<div class="why"><b>Why it matters more now</b>${t.why}</div>`:''}
+      ${t.deeper?`<details class="deeper"><summary>Go deeper</summary><div class="deep-body">${t.deeper}</div></details>`:''}
+      <div class="card-foot">
+        <button class="learn-btn" data-learn="${t.id}">${learned.has(t.id)?'Understood ✓':'Mark as learned'}</button>
+        ${rel.length?`<div class="rel">${rel.map(r=>`<button data-goto="${r}">${byId[r].term||byId[r].title}</button>`).join('')}</div>`:''}
+      </div>
+    </div>
+  </article>`;
+}
+
+function exHTML(x,num){
+  const open=x._open?'open':'', l=done.has(x.id)?'learned':'';
+  const rel=(x.rel||[]).filter(r=>byId[r]);
+  return `<article class="card ex ${open} ${l}" id="card-${x.id}">
+    <button class="card-head" data-toggle="${x.id}" aria-expanded="${!!x._open}">
+      <span class="spec-id">${num}</span>
+      <span class="headmain">
+        <div class="term">${x.title}</div>
+        <div class="plain">${x.plain}</div>
+      </span>
+      <span class="badges"><span class="badge">${x.time}</span><span class="badge">${x.level}</span></span>
+      <span class="chev">▸</span>
+    </button>
+    <div class="card-body">
+      <ol class="steps">${x.steps}</ol>
+      ${x.hint?`<details class="deeper"><summary>Hint</summary><div class="deep-body">${x.hint}</div></details>`:''}
+      <div class="card-foot">
+        <button class="learn-btn" data-learn="${x.id}">${done.has(x.id)?'Done ✓':'Mark complete'}</button>
+        ${rel.length?`<div class="rel">${rel.map(r=>`<button data-goto="${r}">${byId[r].term||byId[r].title}</button>`).join('')}</div>`:''}
+      </div>
+    </div>
+  </article>`;
+}
+
+const exNum=(x)=>GUIDE[x.ci].numeral+'·W'+String(x.xi+1).padStart(2,'0');
+
+function renderMain(){
+  if(query){
+    const q=query.toLowerCase();
+    const hits=ALL.filter(t=>(t.term+' '+t.plain+' '+t.gist+' '+(t.why||'')+' '+(t.deeper||'')).toLowerCase().includes(q));
+    const xhits=ALLX.filter(x=>(x.title+' '+x.plain+' '+x.steps+' '+(x.hint||'')).toLowerCase().includes(q));
+    main.innerHTML=`<div class="chapter-head">
+      <div class="kicker">Search</div>
+      <h2>“${esc(query)}”</h2>
+      <p>${hits.length} concept${hits.length===1?'':'s'} and ${xhits.length} exercise${xhits.length===1?'':'s'} found across the guide.</p>
+    </div>
+    <div class="cards">${hits.map(t=>cardHTML(t,GUIDE[t.ci].numeral+'·'+String(t.ti+1).padStart(2,'0'))).join('')||(xhits.length?'':'<p class="empty">Nothing in the guide matches that — yet.</p>')}</div>
+    ${xhits.length?`<div class="fw-head"><div class="fw-kicker">Workbench</div></div>
+    <div class="cards">${xhits.map(x=>exHTML(x,exNum(x))).join('')}</div>`:''}`;
+  }else{
+    const c=GUIDE[current];
+    const prev=GUIDE[current-1], next=GUIDE[current+1];
+    main.innerHTML=`<div class="chapter-head">
+      <div class="kicker">Chapter ${c.numeral} · ${c.topics.length} concepts</div>
+      <h2>${c.title}</h2>
+      <p>${c.desc}</p>
+    </div>
+    <div class="cards">${c.topics.map((t,i)=>cardHTML(t,c.numeral+'·'+String(i+1).padStart(2,'0'))).join('')}</div>
+    ${c.ex&&c.ex.length?`<div class="fw-head">
+      <div class="fw-kicker">Workbench · ${c.ex.length} exercise${c.ex.length===1?'':'s'}</div>
+      <h3>Now build something with it</h3>
+      <p>Reading gives you the vocabulary; building gives you the judgment. Each exercise is sized for one sitting on the machine you already have.</p>
+    </div>
+    <div class="cards">${c.ex.map(x0=>{const x=byId[x0.id];return exHTML(x,exNum(x))}).join('')}</div>`:''}
+    <div class="pager">
+      ${prev?`<button data-nav="${current-1}"><span>← Previous</span>${prev.title}</button>`:'<span></span>'}
+      ${next?`<button class="next" data-nav="${current+1}"><span>Next →</span>${next.title}</button>`:''}
+    </div>`;
+  }
+  window.scrollTo({top:0});
+}
+
+function render(){renderNav();renderMain()}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-ch],[data-toggle],[data-learn],[data-goto],[data-nav]');
+  if(!el)return;
+  if(el.dataset.ch!==undefined){query='';searchEl.value='';current=+el.dataset.ch;render();}
+  else if(el.dataset.nav!==undefined){current=+el.dataset.nav;render();}
+  else if(el.dataset.toggle){const t=byId[el.dataset.toggle];t._open=!t._open;
+    const card=document.getElementById('card-'+t.id);card.classList.toggle('open',t._open);
+    el.setAttribute('aria-expanded',t._open);}
+  else if(el.dataset.learn){const id=el.dataset.learn;const t=byId[id];
+    const set=t.isEx?done:learned;
+    set.has(id)?set.delete(id):set.add(id);save();
+    const card=document.getElementById('card-'+id);card.classList.toggle('learned',set.has(id));
+    el.textContent=set.has(id)?(t.isEx?'Done ✓':'Understood ✓'):(t.isEx?'Mark complete':'Mark as learned');
+    renderNav();}
+  else if(el.dataset.goto){const t=byId[el.dataset.goto];query='';searchEl.value='';
+    current=t.ci;t._open=true;render();
+    document.getElementById('card-'+t.id).scrollIntoView({behavior:'smooth',block:'center'});}
+});
+
+searchEl.addEventListener('input',()=>{query=searchEl.value.trim();renderMain();renderNav();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==searchEl){e.preventDefault();searchEl.focus();}
+  if(e.key==='Escape'&&query){query='';searchEl.value='';render();}
+});
+document.getElementById('reset').addEventListener('click',()=>{
+  if(confirm('Clear all concept and workbench progress?')){learned.clear();done.clear();save();render();}
+});
+
+render();
+</script>
+</body>
+</html>
