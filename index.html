@@ -121,6 +121,10 @@ nav button .n.done{color:var(--blue);font-weight:700}
 .trail i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--brass));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
 .reset{all:unset;cursor:pointer;font-size:.68rem;color:var(--ink-soft);margin-top:.55rem;text-decoration:underline;text-underline-offset:2px}
 .reset:hover{color:var(--rust)}
+.sync{all:unset;display:block;cursor:pointer;font-size:.68rem;color:var(--ink-soft);margin-top:.55rem;text-decoration:underline;text-underline-offset:2px}
+.sync:hover{color:var(--rust)}
+.sync.on{color:var(--blue);text-decoration:none}
+.sync.on:hover{color:var(--blue);text-decoration:underline}
 
 /* ---------- main ---------- */
 main{padding:2.6rem 3rem 5rem;min-width:0}
@@ -262,6 +266,7 @@ code{
       <div class="trail"><i id="pbar" style="width:0%"></i></div>
       <div class="label" style="margin-top:.6rem"><span>Workbench done</span><strong id="xtext">0 / 0</strong></div>
       <div class="trail"><i id="xbar" class="ember" style="width:0%"></i></div>
+      <button class="sync" id="sync">⚔ Sync progress to Raava</button>
       <button class="reset" id="reset">Reset progress</button>
     </div>
   </aside>
@@ -928,6 +933,7 @@ const searchEl=document.getElementById('search');
 function save(){
   localStorage.setItem(LS_KEY,JSON.stringify([...learned]));
   localStorage.setItem(XS_KEY,JSON.stringify([...done]));
+  pushProgress(); /* no-op unless this browser holds a sync token — see below */
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 
@@ -1064,7 +1070,84 @@ document.getElementById('reset').addEventListener('click',()=>{
   if(confirm('Clear all concept and workbench progress?')){learned.clear();done.clear();save();render();}
 });
 
+/* ---------- Raava sync (optional) ----------------------------------------
+   Each completed unit can be pushed to a personal Ledger, where a scorer turns
+   it into experience. The token is PASTED BY THE READER and lives only in this
+   browser's localStorage: this file is public and carries no credential of any
+   kind. With no token stored, nothing is ever sent anywhere. */
+const SYNC_URL='https://republic-sync-hub.p-fio-noble.workers.dev/push';
+const SYNC_GUIDE='sweng', SYNC_ORIGIN='learn:'+SYNC_GUIDE;
+const TOKEN_KEY='learn_sync_token', SYNCED_KEY='swefg-synced-v1';
+const syncBtn=document.getElementById('sync');
+let syncedIds=new Set(JSON.parse(localStorage.getItem(SYNCED_KEY)||'[]'));
+let syncing=false, syncAgain=false, syncNote='';
+
+const syncToken=()=>localStorage.getItem(TOKEN_KEY)||'';
+const syncDay=(d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+/* One op per unit that is complete but not yet pushed — which on the first
+   connect is every unit already collected (the backfill). Un-completing a unit
+   pushes nothing and deletes nothing: banked experience is never taken back. */
+function syncOps(){
+  const now=new Date(), day=syncDay(now), stamp=now.toISOString(), ops=[];
+  for(const [kind,set] of [['concept',learned],['exercise',done]])
+    for(const unit of set){
+      const id=`learn:${SYNC_GUIDE}:${kind}:${unit}`;
+      if(syncedIds.has(id))continue;
+      ops.push({id,ns:'learn',collection:'progress',
+        data:{id,guide:SYNC_GUIDE,kind,unit,date:day,timestamp:stamp},
+        updatedAt:Date.now(),deletedAt:null,origin:SYNC_ORIGIN});
+    }
+  return ops;
+}
+
+function renderSync(){
+  const on=!!syncToken();
+  syncBtn.classList.toggle('on',on&&!syncNote&&!syncing);
+  syncBtn.textContent=!on?'⚔ Sync progress to Raava'
+    :syncNote?`⚔ ${syncNote}`
+    :syncing?'⚔ syncing…'
+    :'⚔ synced — disconnect';
+}
+
+/* An id is marked synced only once the hub confirms it, so a failed or offline
+   push simply goes out again on the next completion or the next page load. */
+async function pushProgress(){
+  if(syncing){syncAgain=true;return}   /* a card marked mid-flight isn't lost */
+  if(!syncToken())return;
+  const ops=syncOps();
+  if(!ops.length){renderSync();return}
+  syncing=true;syncNote='';renderSync();
+  try{
+    const res=await fetch(SYNC_URL,{method:'POST',
+      headers:{'content-type':'application/json','x-sync-token':syncToken()},
+      body:JSON.stringify({ops})});
+    if(!res.ok)syncNote=res.status===401||res.status===403?'sync token rejected':`sync failed (${res.status})`;
+    else{
+      const body=await res.json().catch(()=>({}));
+      for(const r of body.results||[])
+        if(r&&r.id&&(r.status==='applied'||r.status==='duplicate'))syncedIds.add(r.id);
+      localStorage.setItem(SYNCED_KEY,JSON.stringify([...syncedIds]));
+    }
+  }catch(err){syncNote='sync offline — will retry'}
+  syncing=false;renderSync();
+  const again=syncAgain;syncAgain=false;
+  if(again&&!syncNote)pushProgress(); /* a failure waits for the next load instead */
+}
+
+syncBtn.addEventListener('click',()=>{
+  if(syncToken()){
+    if(!confirm('Disconnect Raava sync? Progress stays in this browser.'))return;
+    localStorage.removeItem(TOKEN_KEY);syncNote='';renderSync();return;
+  }
+  const t=(prompt('Paste your Raava sync token. It is stored only in this browser.')||'').trim();
+  if(!t)return;
+  localStorage.setItem(TOKEN_KEY,t);syncNote='';renderSync();pushProgress();
+});
+
 render();
+renderSync();
+pushProgress();
 </script>
 </body>
 </html>
